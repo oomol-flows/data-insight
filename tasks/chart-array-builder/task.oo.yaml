@@ -1,6 +1,6 @@
 inputs_def:
   - handle: charts
-    description: "Array of chart objects to combine"
+    description: "%array-of-chart-objects-to-combine%"
     json_schema:
       type: array
       items:
@@ -16,6 +16,7 @@ inputs_def:
 
 outputs_def:
   - handle: charts_array
+    description: "%filtered-array-of-valid-chart-objects%"
     json_schema:
       type: array
       items:
@@ -27,7 +28,6 @@ outputs_def:
             type: string
           description:
             type: string
-    description: "Filtered array of valid chart objects"
     nullable: false
 
 executor:
@@ -36,7 +36,6 @@ executor:
     entry: __init__.py
     spawn: false
 
-title: "Chart Array Builder"
+title: "%chart-array-builder%"
 icon: ":carbon:list-boxes:"
-description: "Combine chart objects into an array for report generation. Accepts
-  a direct array input and automatically filters out empty charts."
+description: "%combine-chart-objects-into-an-array-for-report-generation-accept%"

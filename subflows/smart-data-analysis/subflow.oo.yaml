@@ -1,25 +1,23 @@
-title: "Smart Data Analysis (Multi-Round)"
-description: "AI-powered multi-round exploratory analysis with automatic
-  insights discovery. Uses Exploration Agent for intelligent data
-  investigation."
+title: "%smart-data-analysis-multi-round%"
+description: "%ai-powered-multi-round-exploratory-analysis-with-automatic-insig%"
 
 inputs_def:
   - handle: data_file
+    description: "%path-to-csv-or-excel-data-file%"
     json_schema:
       type: string
       ui:widget: file
-    description: "Path to CSV or Excel data file"
     nullable: false
 
   - handle: analysis_goal
+    description: "%your-high-level-analysis-goal-e-g-discover-sales-trends-and-anom%"
     json_schema:
       type: string
       ui:widget: text
-    description: "Your high-level analysis goal (e.g., 'Discover sales trends and
-      anomalies')"
     nullable: false
 
   - handle: source_type
+    description: "%type-of-data-file%"
     json_schema:
       type: string
       enum:
@@ -31,28 +29,27 @@ inputs_def:
           - CSV File
           - Excel File
           - JSON File
-    value: csv
+    value: "csv"
     nullable: false
-    description: "Type of data file"
 
   - handle: max_iterations
+    description: "%number-of-exploration-rounds-default-3%"
     json_schema:
       type: number
     value: 3
     nullable: true
-    description: "Number of exploration rounds (default: 3)"
 
 outputs_def:
   - handle: final_report
+    description: "%comprehensive-analysis-report-with-multiple-charts-and-insights%"
     json_schema:
       type: string
-    description: "Comprehensive analysis report with multiple charts and insights"
     nullable: false
 
   - handle: exploration_steps
+    description: "%detailed-exploration-steps-taken-by-the-ai%"
     json_schema:
       type: array
-    description: "Detailed exploration steps taken by the AI"
     nullable: false
 
 nodes:

@@ -1,6 +1,6 @@
 inputs_def:
   - handle: charts
-    description: Array of chart objects with title, base64 image, and description
+    description: "%array-of-chart-objects-with-title-base64-image-and-description%"
     json_schema:
       type: array
       items:
@@ -15,14 +15,14 @@ inputs_def:
     nullable: false
 
   - handle: analysis_goal
-    description: The high-level goal of the analysis
+    description: "%the-high-level-goal-of-the-analysis%"
     json_schema:
       type: string
       ui:widget: text
     nullable: false
 
   - handle: llm
-    description: LLM model configuration for report generation
+    description: "%llm-model-configuration-for-report-generation%"
     json_schema:
       ui:widget: llm::model
     value:
@@ -34,15 +34,15 @@ inputs_def:
 
 outputs_def:
   - handle: markdown_report
+    description: "%complete-markdown-report-with-embedded-charts%"
     json_schema:
       type: string
-    description: "Complete markdown report with embedded charts"
     nullable: false
 
   - handle: report_file
+    description: "%path-to-saved-markdown-file%"
     json_schema:
       type: string
-    description: "Path to saved markdown file"
     nullable: false
 
 executor:
@@ -51,7 +51,6 @@ executor:
     entry: __init__.py
     spawn: false
 
-title: "Report Generator"
+title: "%report-generator%"
 icon: ":carbon:document-tasks:"
-description: "Generate comprehensive markdown reports integrating charts and
-  AI-driven analysis"
+description: "%generate-comprehensive-markdown-reports-integrating-charts-and-a%"

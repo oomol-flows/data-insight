@@ -1,5 +1,6 @@
 inputs_def:
   - handle: data_table
+    description: "%input-data-table-to-check-for-quality-issues%"
     json_schema:
       type: object
       properties:
@@ -9,17 +10,17 @@ inputs_def:
           type: array
         schema:
           type: object
-    description: "Input data table to check for quality issues"
     nullable: false
 
   - handle: auto_clean
+    description: "%automatically-clean-common-issues-missing-values-outliers%"
     json_schema:
       type: boolean
     value: true
     nullable: false
-    description: "Automatically clean common issues (missing values, outliers)"
 
   - handle: llm
+    description: "%llm-for-generating-cleaning-suggestions%"
     json_schema:
       ui:widget: llm::model
     value:
@@ -28,10 +29,10 @@ inputs_def:
       top_p: 1
       max_tokens: 128000
     nullable: false
-    description: "LLM for generating cleaning suggestions"
 
 outputs_def:
   - handle: quality_report
+    description: "%detailed-quality-assessment-report%"
     json_schema:
       type: object
       properties:
@@ -45,16 +46,16 @@ outputs_def:
           type: array
         duplicate_rows:
           type: number
-    description: "Detailed quality assessment report"
     nullable: false
 
   - handle: cleaning_suggestions
+    description: "%ai-generated-suggestions-for-data-cleaning%"
     json_schema:
       type: string
-    description: "AI-generated suggestions for data cleaning"
     nullable: false
 
   - handle: cleaned_table
+    description: "%cleaned-data-table-if-auto_clean-is-enabled%"
     json_schema:
       type: object
       properties:
@@ -64,13 +65,12 @@ outputs_def:
           type: array
         schema:
           type: object
-    description: "Cleaned data table (if auto_clean is enabled)"
     nullable: false
 
   - handle: quality_visualization
+    description: "%base64-encoded-visualization-of-quality-issues%"
     json_schema:
       type: string
-    description: "Base64 encoded visualization of quality issues"
     nullable: true
 
 executor:
@@ -79,6 +79,6 @@ executor:
     entry: __init__.py
     spawn: false
 
-title: "Data Quality Checker"
+title: "%data-quality-checker%"
 icon: ":carbon:data-quality-definition:"
-description: "Analyze data quality, detect issues (missing values, outliers, duplicates), and provide AI-powered cleaning suggestions"
+description: "%analyze-data-quality-detect-issues-missing-values-outliers-dupli%"

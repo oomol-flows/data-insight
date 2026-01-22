@@ -1,5 +1,6 @@
 inputs_def:
   - handle: data_table
+    description: "%input-data-table-to-visualize%"
     json_schema:
       type: object
       properties:
@@ -7,13 +8,13 @@ inputs_def:
           type: array
         rows:
           type: array
-    description: "Input data table to visualize"
     nullable: false
 
   - group: Option 1 - Direct Field Specification
     collapsed: false
 
   - handle: chart_type
+    description: "%type-of-chart-to-generate%"
     json_schema:
       enum:
         - bar
@@ -30,69 +31,67 @@ inputs_def:
           - Area Chart
           - Pie Chart
           - Heatmap
-    value: bar
+    value: "bar"
     nullable: true
-    description: "Type of chart to generate"
 
   - handle: x_field
+    description: "%field-name-for-x-axis%"
     json_schema:
       type: string
+    value:
     nullable: true
-    value: null
-    description: "Field name for X axis"
 
   - handle: y_field
+    description: "%field-name-for-y-axis%"
     json_schema:
       type: string
+    value:
     nullable: true
-    value: null
-    description: "Field name for Y axis"
 
   - handle: color_field
+    description: "%optional-field-for-color-encoding%"
     json_schema:
       type: string
+    value:
     nullable: true
-    value: null
-    description: "Optional field for color encoding"
 
   - handle: size_field
+    description: "%optional-field-for-size-encoding-scatter-only%"
     json_schema:
       type: string
+    value:
     nullable: true
-    value: null
-    description: "Optional field for size encoding (scatter only)"
 
   - group: Option 2 - From Chart Recommender
     collapsed: true
 
   - handle: from_recommendations
+    description: "%chart-recommendations-from-chart-recommender-will-use-first-reco%"
     json_schema:
       type: array
       items:
         type: object
+    value:
     nullable: true
-    value: null
-    description: "Chart recommendations from Chart Recommender (will use first
-      recommendation if provided)"
 
   - handle: selection_index
+    description: "%which-recommendation-to-use-from-the-array-default-0-first%"
     json_schema:
       type: number
     value: 0
     nullable: true
-    description: "Which recommendation to use from the array (default: 0 = first)"
 
 outputs_def:
   - handle: vega_spec
+    description: "%vega-lite-json-specification%"
     json_schema:
       type: object
-    description: "Vega-Lite JSON specification"
     nullable: false
 
   - handle: chart_image
+    description: "%base64-encoded-png-image%"
     json_schema:
       type: string
-    description: "Base64 encoded PNG image"
     nullable: false
 
 executor:
@@ -101,6 +100,6 @@ executor:
     entry: __init__.py
     spawn: false
 
-title: "Chart Generator"
+title: "%chart-generator%"
 icon: ":carbon:chart-bar:"
-description: "Generate interactive charts using Vega-Lite from data tables"
+description: "%generate-interactive-charts-using-vega-lite-from-data-tables%"

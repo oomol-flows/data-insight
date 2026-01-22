@@ -33,6 +33,7 @@ inputs_def:
 
 outputs_def:
   - handle: recommended_charts
+    description: "%chart-recommender-recommended-charts%"
     json_schema:
       type: array
       items:
@@ -58,12 +59,12 @@ outputs_def:
             type: string
           priority:
             type: number
-    description: "%chart-recommender-recommended-charts%"
 
   - group: Top Recommendation Fields
     collapsed: false
 
   - handle: chart_type
+    description: "%chart-type-of-the-top-recommendation%"
     json_schema:
       enum:
         - bar
@@ -72,39 +73,36 @@ outputs_def:
         - area
         - pie
         - heatmap
-    description: "Chart type of the top recommendation"
     nullable: false
 
   - handle: x_field
+    description: "%x-axis-field-of-the-top-recommendation%"
     json_schema:
       type: string
-    description: "X-axis field of the top recommendation"
     nullable: false
 
   - handle: y_field
+    description: "%y-axis-field-of-the-top-recommendation%"
     json_schema:
       type: string
-    description: "Y-axis field of the top recommendation"
     nullable: false
 
   - handle: color_field
+    description: "%color-field-of-the-top-recommendation-null-if-not-used%"
     json_schema:
       type: string
-    description: "Color field of the top recommendation (null if not used)"
     nullable: true
-    value: null
 
   - handle: size_field
+    description: "%size-field-of-the-top-recommendation-null-if-not-used%"
     json_schema:
       type: string
-    description: "Size field of the top recommendation (null if not used)"
     nullable: true
-    value: null
 
   - handle: chart_title
+    description: "%generated-chart-title%"
     json_schema:
       type: string
-    description: "Generated chart title"
     nullable: false
 
 executor:

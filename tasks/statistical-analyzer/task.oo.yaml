@@ -1,6 +1,6 @@
 inputs_def:
   - handle: data_table
-    description: "Input data table for statistical analysis"
+    description: "%input-data-table-for-statistical-analysis%"
     json_schema:
       type: object
       properties:
@@ -13,7 +13,7 @@ inputs_def:
     nullable: false
 
   - handle: analysis_type
-    description: "Type of statistical analysis to perform"
+    description: "%type-of-statistical-analysis-to-perform%"
     json_schema:
       type: string
       enum:
@@ -34,7 +34,7 @@ inputs_def:
     collapsed: true
 
   - handle: variables
-    description: "Variables to analyze (field names from data_table)"
+    description: "%variables-to-analyze-field-names-from-data_table%"
     json_schema:
       type: object
       properties:
@@ -51,7 +51,7 @@ inputs_def:
     nullable: true
 
   - handle: llm
-    description: "LLM configuration for generating interpretations"
+    description: "%llm-configuration-for-generating-interpretations%"
     json_schema:
       ui:widget: llm::model
     value:
@@ -63,21 +63,21 @@ inputs_def:
 
 outputs_def:
   - handle: test_result
+    description: "%statistical-test-results-with-statistics-and-p-values%"
     json_schema:
       type: object
-    description: "Statistical test results with statistics and p-values"
     nullable: false
 
   - handle: interpretation
+    description: "%ai-generated-interpretation-of-the-results%"
     json_schema:
       type: string
-    description: "AI-generated interpretation of the results"
     nullable: false
 
   - handle: visualization
+    description: "%base64-encoded-visualization-if-applicable%"
     json_schema:
       type: string
-    description: "Base64 encoded visualization (if applicable)"
     nullable: true
 
 executor:
@@ -86,6 +86,6 @@ executor:
     entry: __init__.py
     spawn: false
 
-title: "Statistical Analyzer"
+title: "%statistical-analyzer%"
 icon: ":carbon:chart-scatter:"
-description: "Perform statistical tests and analyses with AI-powered interpretations"
+description: "%perform-statistical-tests-and-analyses-with-ai-powered-interpret%"

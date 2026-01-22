@@ -1,5 +1,6 @@
 inputs_def:
   - handle: input_table
+    description: "%input-data-table-for-exploration%"
     json_schema:
       type: object
       properties:
@@ -9,24 +10,24 @@ inputs_def:
           type: array
         schema:
           type: object
-    description: "Input data table for exploration"
     nullable: false
 
   - handle: exploration_goal
+    description: "%high-level-exploration-goal-e-g-find-insights-about-sales-trends%"
     json_schema:
       type: string
       ui:widget: text
-    description: "High-level exploration goal (e.g., 'Find insights about sales trends')"
     nullable: false
 
   - handle: max_iterations
+    description: "%maximum-number-of-exploration-iterations%"
     json_schema:
       type: number
     value: 3
     nullable: true
-    description: "Maximum number of exploration iterations"
 
   - handle: llm
+    description: "%llm-model-configuration-for-exploration-planning%"
     json_schema:
       ui:widget: llm::model
     value:
@@ -34,10 +35,10 @@ inputs_def:
       temperature: 0.3
       max_tokens: 128000
     nullable: false
-    description: "LLM model configuration for exploration planning"
 
 outputs_def:
   - handle: exploration_steps
+    description: "%array-of-exploration-steps-with-transformations-insights-and-cha%"
     json_schema:
       type: array
       items:
@@ -61,16 +62,16 @@ outputs_def:
               - area
               - pie
               - heatmap
-    description: "Array of exploration steps with transformations, insights, and charts"
     nullable: false
 
   - handle: final_report
+    description: "%markdown-summary-of-key-findings%"
     json_schema:
       type: string
-    description: "Markdown summary of key findings"
     nullable: false
 
   - handle: chart_images
+    description: "%all-generated-charts-ready-for-report-generator%"
     json_schema:
       type: array
       items:
@@ -82,7 +83,6 @@ outputs_def:
             type: string
           description:
             type: string
-    description: "All generated charts ready for Report Generator"
     nullable: false
 
 executor:
@@ -91,7 +91,6 @@ executor:
     entry: __init__.py
     spawn: false
 
-title: "Exploration Agent"
+title: "%exploration-agent%"
 icon: ":carbon:explore:"
-description: "Autonomous multi-round data exploration agent that discovers
-  insights through iterative analysis"
+description: "%autonomous-multi-round-data-exploration-agent-that-discovers-ins%"

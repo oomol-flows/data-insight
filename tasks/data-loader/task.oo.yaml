@@ -1,5 +1,6 @@
 inputs_def:
   - handle: source_type
+    description: "%type-of-data-source-to-load%"
     json_schema:
       type: string
       enum:
@@ -17,21 +18,21 @@ inputs_def:
           - MySQL Database
           - PostgreSQL Database
           - SQLite Database
-    value: csv
+    value: "csv"
     nullable: false
-    description: "Type of data source to load"
 
   - handle: file_path
+    description: "%path-to-the-data-file-required-for-csv-excel-json%"
     json_schema:
       type: string
       ui:widget: file
     nullable: true
-    description: "Path to the data file (required for csv/excel/json)"
 
   - group: Database Configuration
     collapsed: true
 
   - handle: database_config
+    description: "%database-connection-configuration-required-for-mysql-postgresql%"
     json_schema:
       type: object
       properties:
@@ -50,12 +51,12 @@ inputs_def:
           type: string
           ui:widget: text
       ui:widget: object
+    value:
     nullable: true
-    value: null
-    description: "Database connection configuration (required for mysql/postgresql/sqlite)"
 
 outputs_def:
   - handle: data_table
+    description: "%standard-table-format-with-columns-rows-and-schema%"
     json_schema:
       type: object
       properties:
@@ -69,13 +70,12 @@ outputs_def:
             type: object
         schema:
           type: object
-    description: "Standard table format with columns, rows, and schema"
     nullable: false
 
   - handle: preview_html
+    description: "%html-table-preview%"
     json_schema:
       type: string
-    description: "HTML table preview"
     nullable: false
 
 executor:
@@ -84,7 +84,6 @@ executor:
     entry: __init__.py
     spawn: false
 
-title: "Data Loader"
+title: "%data-loader%"
 icon: ":carbon:document-import:"
-description: "Load tabular data from multiple sources: files (CSV, Excel, JSON)
-  and databases (MySQL, PostgreSQL, SQLite)"
+description: "%load-tabular-data-from-multiple-sources-files-csv-excel-json-and%"

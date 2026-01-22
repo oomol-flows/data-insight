@@ -1,6 +1,6 @@
 inputs_def:
   - handle: data_table
-    description: "Input data table for quick analysis"
+    description: "%input-data-table-for-quick-analysis%"
     json_schema:
       type: object
       properties:
@@ -16,17 +16,17 @@ inputs_def:
     collapsed: true
 
   - handle: auto_clean
+    description: "%automatically-clean-common-issues%"
     json_schema:
       type: boolean
     value: true
     nullable: false
-    description: "Automatically clean common issues"
 
   - group: Analysis Options
     collapsed: true
 
   - handle: analysis_type
-    description: "Type of statistical analysis"
+    description: "%type-of-statistical-analysis%"
     json_schema:
       type: string
       enum:
@@ -44,18 +44,18 @@ inputs_def:
     nullable: false
 
   - handle: analysis_goal
-    description: "Optional goal for chart recommendations"
+    description: "%optional-goal-for-chart-recommendations%"
     json_schema:
       type: string
       ui:widget: text
-    value: null
+    value:
     nullable: true
 
   - group: LLM Configuration
     collapsed: true
 
   - handle: llm
-    description: "LLM configuration for analysis"
+    description: "%llm-configuration-for-analysis%"
     json_schema:
       ui:widget: llm::model
     value:
@@ -67,6 +67,7 @@ inputs_def:
 
 outputs_def:
   - handle: quality_report
+    description: "%data-quality-assessment-report%"
     json_schema:
       type: object
       properties:
@@ -80,16 +81,16 @@ outputs_def:
           type: array
         duplicate_rows:
           type: number
-    description: "Data quality assessment report"
     nullable: false
 
   - handle: statistics
+    description: "%statistical-analysis-results%"
     json_schema:
       type: object
-    description: "Statistical analysis results"
     nullable: false
 
   - handle: chart_configs
+    description: "%recommended-chart-configurations%"
     json_schema:
       type: array
       items:
@@ -115,10 +116,10 @@ outputs_def:
             type: string
           priority:
             type: number
-    description: "Recommended chart configurations"
     nullable: false
 
   - handle: charts_array
+    description: "%generated-charts-array%"
     json_schema:
       type: array
       items:
@@ -130,7 +131,6 @@ outputs_def:
             type: string
           description:
             type: string
-    description: "Generated charts array"
     nullable: false
 
 nodes:
@@ -219,7 +219,7 @@ nodes:
 
   # 5. Build Chart Array (scriptlet)
   - node_id: +python#1
-    title: "Build Charts Array"
+    title: "%build-charts-array%"
     icon: ":logos:python:"
     task:
       inputs_def:
@@ -237,6 +237,7 @@ nodes:
           nullable: false
       outputs_def:
         - handle: charts
+          description: "%array-of-chart-objects-to-combine2%"
           json_schema:
             type: array
             items:
@@ -249,7 +250,6 @@ nodes:
                 description:
                   type: string
           nullable: false
-          description: Array of chart objects to combine
       executor:
         name: python
         options:
@@ -303,7 +303,6 @@ outputs_from:
 forward_previews:
   - charts#1
 
-title: "Quick Data Analysis"
+title: "%quick-data-analysis%"
 icon: ":carbon:chart-combo:"
-description: "Perform quick data analysis including quality check, statistics,
-  and chart generation"
+description: "%perform-quick-data-analysis-including-quality-check-statistics-a%"
