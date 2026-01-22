@@ -1,0 +1,76 @@
+inputs_def:
+  - handle: data_table
+    json_schema:
+      type: object
+      properties:
+        columns:
+          type: array
+        rows:
+          type: array
+    description: "Input data table to visualize"
+    nullable: false
+
+  - handle: chart_type
+    json_schema:
+      type: string
+      enum: [bar, line, scatter, area, pie, heatmap]
+      ui:options:
+        labels:
+          - Bar Chart
+          - Line Chart
+          - Scatter Plot
+          - Area Chart
+          - Pie Chart
+          - Heatmap
+    value: bar
+    nullable: false
+    description: "Type of chart to generate"
+
+  - handle: x_field
+    json_schema:
+      type: string
+    nullable: false
+    description: "Field name for X axis"
+
+  - handle: y_field
+    json_schema:
+      type: string
+    nullable: false
+    description: "Field name for Y axis"
+
+  - handle: color_field
+    json_schema:
+      type: string
+    nullable: true
+    value: null
+    description: "Optional field for color encoding"
+
+  - handle: size_field
+    json_schema:
+      type: string
+    nullable: true
+    value: null
+    description: "Optional field for size encoding (scatter only)"
+
+outputs_def:
+  - handle: vega_spec
+    json_schema:
+      type: object
+    description: "Vega-Lite JSON specification"
+    nullable: false
+
+  - handle: chart_image
+    json_schema:
+      type: string
+    description: "Base64 encoded PNG image"
+    nullable: false
+
+executor:
+  name: python
+  options:
+    entry: __init__.py
+    spawn: false
+
+title: "Chart Generator"
+icon: ":carbon:chart-bar:"
+description: "Generate interactive charts using Vega-Lite from data tables"

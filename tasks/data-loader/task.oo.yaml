@@ -1,0 +1,54 @@
+inputs_def:
+  - handle: source_type
+    json_schema:
+      type: string
+      enum: [csv, excel, json]
+      ui:options:
+        labels:
+          - CSV File
+          - Excel File
+          - JSON File
+    value: csv
+    nullable: false
+    description: "Type of data source to load"
+
+  - handle: file_path
+    json_schema:
+      type: string
+      ui:widget: file
+    nullable: false
+    description: "Path to the data file"
+
+outputs_def:
+  - handle: data_table
+    json_schema:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            type: object
+        schema:
+          type: object
+    description: "Standard table format with columns, rows, and schema"
+    nullable: false
+
+  - handle: preview_html
+    json_schema:
+      type: string
+    description: "HTML table preview"
+    nullable: false
+
+executor:
+  name: python
+  options:
+    entry: __init__.py
+    spawn: false
+
+title: "Data Loader"
+icon: ":carbon:document-import:"
+description: "Load tabular data from multiple file formats (CSV, Excel, JSON)"

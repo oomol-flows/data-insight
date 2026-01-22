@@ -1,0 +1,13 @@
+region,product,sales,year
+North,Product A,12500,2023
+North,Product B,8900,2023
+North,Product C,15600,2023
+South,Product A,9800,2023
+South,Product B,11200,2023
+South,Product C,13400,2023
+East,Product A,14700,2023
+East,Product B,10500,2023
+East,Product C,16800,2023
+West,Product A,11300,2023
+West,Product B,9600,2023
+West,Product C,14200,2023

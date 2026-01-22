@@ -1,0 +1,66 @@
+inputs_def:
+  - handle: input_table
+    description: Input table with data and schema
+    json_schema:
+      type: object
+      properties:
+        columns:
+          type: array
+        rows:
+          type: array
+        schema:
+          type: object
+    nullable: false
+
+  - handle: instruction
+    description: Natural language instruction (e.g., 'Show top 10 sales by region')
+    json_schema:
+      type: string
+      ui:widget: text
+    nullable: false
+
+  - handle: llm
+    description: LLM configuration for SQL generation
+    json_schema:
+      ui:widget: llm::model
+    value:
+      model: oomol-chat
+      temperature: 0.5
+      top_p: 1
+      max_tokens: 128000
+    nullable: false
+
+outputs_def:
+  - handle: sql_query
+    json_schema:
+      type: string
+    description: "Generated SQL query"
+    nullable: false
+
+  - handle: result_table
+    json_schema:
+      type: object
+      properties:
+        columns:
+          type: array
+        rows:
+          type: array
+    description: "Query execution result"
+    nullable: false
+
+  - handle: explanation
+    json_schema:
+      type: string
+    description: "Explanation of the SQL query"
+    nullable: false
+
+executor:
+  name: python
+  options:
+    entry: __init__.py
+    spawn: false
+
+title: "NL to SQL Transformer"
+icon: ":carbon:sql:"
+description: "Transform natural language instructions into SQL queries and
+  execute them on data tables"
