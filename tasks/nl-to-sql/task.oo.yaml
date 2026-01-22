@@ -45,7 +45,9 @@ outputs_def:
           type: array
         rows:
           type: array
-    description: "Query execution result"
+        schema:
+          type: object
+    description: "Query execution result with inferred schema"
     nullable: false
 
   - handle: explanation

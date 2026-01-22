@@ -1,6 +1,5 @@
 title: "Complete Data Analysis Pipeline"
-description: "End-to-end automated data analysis: Load → Transform → Visualize →
-  Report. Perfect for quick insights from CSV/Excel files."
+description: "End-to-end automated data analysis: Load → Transform → Visualize → Report. Perfect for quick insights from CSV/Excel files."
 
 inputs_def:
   - handle: data_file
@@ -71,36 +70,7 @@ nodes:
       - handle: database_config
         value: null
 
-  # Step 2: Get AI chart recommendations
-  - node_id: recommend#1
-    task: self::chart-recommender
-    inputs_from:
-      - handle: data_table
-        from_node:
-          - node_id: load#1
-            output_handle: data_table
-      - handle: analysis_goal
-        from_flow:
-          - input_handle: analysis_question
-      - handle: llm
-        value:
-          model: oomol-chat
-          temperature: 0.5
-          top_p: 1
-          max_tokens: 128000
-
-  # Step 3: Select the top recommended chart
-  - node_id: select#1
-    task: self::chart-selector
-    inputs_from:
-      - handle: recommendations
-        from_node:
-          - node_id: recommend#1
-            output_handle: recommended_charts
-      - handle: selection_index
-        value: 0
-
-  # Step 4: Transform data using natural language
+  # Step 2: Transform data using natural language
   - node_id: transform#1
     task: self::nl-to-sql
     inputs_from:
@@ -118,7 +88,25 @@ nodes:
           top_p: 1
           max_tokens: 128000
 
-  # Step 5: Generate chart based on recommendation
+  # Step 3: Get AI chart recommendations
+  - node_id: recommend#1
+    task: self::chart-recommender
+    inputs_from:
+      - handle: data_table
+        from_node:
+          - node_id: transform#1
+            output_handle: result_table
+      - handle: analysis_goal
+        from_flow:
+          - input_handle: analysis_question
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000
+
+  # Step 4: Generate chart directly from recommendations (no Chart Selector needed!)
   - node_id: chart#1
     task: self::chart-generator
     inputs_from:
@@ -126,65 +114,64 @@ nodes:
         from_node:
           - node_id: transform#1
             output_handle: result_table
+      - handle: from_recommendations
+        from_node:
+          - node_id: recommend#1
+            output_handle: recommended_charts
+      - handle: selection_index
+        value: 0
       - handle: chart_type
-        from_node:
-          - node_id: select#1
-            output_handle: chart_type
+        value: null
       - handle: x_field
-        from_node:
-          - node_id: select#1
-            output_handle: x_field
+        value: null
       - handle: y_field
-        from_node:
-          - node_id: select#1
-            output_handle: y_field
+        value: null
       - handle: color_field
-        from_node:
-          - node_id: select#1
-            output_handle: color_field
+        value: null
       - handle: size_field
-        from_node:
-          - node_id: select#1
-            output_handle: size_field
+        value: null
 
-  # Step 6: Build chart array
-  - node_id: array#1
-    task: self::chart-array-builder
+  # Step 5: Build chart array using scriptlet
+  - node_id: +python#1
+    title: "Build Chart Array"
+    icon: ":logos:python:"
+    task:
+      inputs_def:
+        - handle: chart_image
+          json_schema: {type: string}
+          nullable: false
+        - handle: explanation
+          json_schema: {type: string}
+          nullable: false
+      outputs_def:
+        - handle: charts_list
+          json_schema:
+            type: array
+            items:
+              type: object
+          nullable: false
+      executor:
+        name: python
+        options:
+          entry: scriptlets/build_chart_array.py
     inputs_from:
-      - handle: chart1_image
+      - handle: chart_image
         from_node:
           - node_id: chart#1
             output_handle: chart_image
-      - handle: chart1_title
-        value: "Analysis Visualization"
-      - handle: chart1_description
+      - handle: explanation
         from_node:
           - node_id: transform#1
             output_handle: explanation
-      - handle: chart2_image
-        value: null
-      - handle: chart2_title
-        value: null
-      - handle: chart2_description
-        value: null
-      - handle: chart3_image
-        value: null
-      - handle: chart3_title
-        value: null
-      - handle: chart3_description
-        value: null
-      - handle: chart4_image
-        value: null
-      - handle: chart4_title
-        value: null
-      - handle: chart4_description
-        value: null
-      - handle: chart5_image
-        value: null
-      - handle: chart5_title
-        value: null
-      - handle: chart5_description
-        value: null
+
+  # Step 6: Use Chart Array Builder
+  - node_id: array#1
+    task: self::chart-array-builder
+    inputs_from:
+      - handle: charts
+        from_node:
+          - node_id: +python#1
+            output_handle: charts_list
 
   # Step 7: Generate comprehensive report
   - node_id: report#1
@@ -224,4 +211,5 @@ forward_previews:
   - load#1
   - chart#1
   - report#1
+
 icon: ":carbon:ai-label:"

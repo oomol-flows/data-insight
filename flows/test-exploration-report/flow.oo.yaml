@@ -1,0 +1,50 @@
+title: "Test Exploration Agent with Report"
+description: "Test the integration of Exploration Agent with Report Generator to validate the complete multi-round analysis pipeline"
+
+nodes:
+  # Step 1: Load sample data
+  - node_id: load#1
+    task: self::data-loader
+    inputs_from:
+      - handle: source_type
+        value: csv
+      - handle: file_path
+        value: /oomol-driver/oomol-storage/sample_sales.csv
+      - handle: database_config
+        value: null
+
+  # Step 2: Run exploration agent for multi-round analysis
+  - node_id: explore#1
+    task: self::exploration-agent
+    inputs_from:
+      - handle: input_table
+        from_node:
+          - node_id: load#1
+            output_handle: data_table
+      - handle: exploration_goal
+        value: "Analyze sales patterns and identify key trends. Focus on regional performance and temporal patterns."
+      - handle: max_iterations
+        value: 3
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.3
+          top_p: 1
+          max_tokens: 128000
+
+  # Step 3: Generate comprehensive report from exploration results
+  - node_id: report#1
+    task: self::report-generator
+    inputs_from:
+      - handle: charts
+        from_node:
+          - node_id: explore#1
+            output_handle: chart_images
+      - handle: analysis_goal
+        value: "Comprehensive sales analysis with multi-round exploration insights"
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000

@@ -186,12 +186,16 @@ Output JSON format: {{"sql_query": "...", "explanation": "..."}}"""
 
     context.report_progress(100)
 
+    # Infer schema for result table
+    result_schema = infer_schema_from_df(result_df)
+
     # Return results
     return {
         "sql_query": sql_query,
         "result_table": {
             "columns": result_df.columns.tolist(),
-            "rows": result_df.to_dict("records")
+            "rows": result_df.to_dict("records"),
+            "schema": result_schema
         },
         "explanation": explanation
     }
@@ -282,3 +286,39 @@ def convert_to_duckdb_types(df: pd.DataFrame) -> pd.DataFrame:
             df[col] = df[col].astype('float64')  # Use float to handle nulls
 
     return df
+
+
+def infer_schema_from_df(df: pd.DataFrame) -> dict:
+    """
+    Infer schema from DataFrame for compatibility with Chart Recommender.
+
+    Returns schema compatible with Data Loader output format.
+    """
+    schema = {}
+
+    for col in df.columns:
+        col_schema = {}
+
+        # Determine semantic type
+        if pd.api.types.is_numeric_dtype(df[col]):
+            col_schema["type"] = "quantitative"
+            col_schema["stats"] = {
+                "min": float(df[col].min()) if not df[col].isna().all() else None,
+                "max": float(df[col].max()) if not df[col].isna().all() else None,
+                "mean": float(df[col].mean()) if not df[col].isna().all() else None,
+            }
+        elif pd.api.types.is_datetime64_any_dtype(df[col]):
+            col_schema["type"] = "temporal"
+        else:
+            col_schema["type"] = "nominal"
+
+        # Add unique count
+        col_schema["unique_count"] = int(df[col].nunique())
+
+        # Add sample values for categorical fields
+        if col_schema["type"] == "nominal" and col_schema["unique_count"] <= 10:
+            col_schema["unique_values"] = df[col].dropna().unique().tolist()
+
+        schema[col] = col_schema
+
+    return schema

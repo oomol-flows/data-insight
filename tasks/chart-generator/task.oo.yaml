@@ -10,6 +10,9 @@ inputs_def:
     description: "Input data table to visualize"
     nullable: false
 
+  - group: Option 1 - Direct Field Specification
+    collapsed: false
+
   - handle: chart_type
     json_schema:
       enum:
@@ -28,19 +31,21 @@ inputs_def:
           - Pie Chart
           - Heatmap
     value: bar
-    nullable: false
+    nullable: true
     description: "Type of chart to generate"
 
   - handle: x_field
     json_schema:
       type: string
-    nullable: false
+    nullable: true
+    value: null
     description: "Field name for X axis"
 
   - handle: y_field
     json_schema:
       type: string
-    nullable: false
+    nullable: true
+    value: null
     description: "Field name for Y axis"
 
   - handle: color_field
@@ -56,6 +61,25 @@ inputs_def:
     nullable: true
     value: null
     description: "Optional field for size encoding (scatter only)"
+
+  - group: Option 2 - From Chart Recommender
+    collapsed: true
+
+  - handle: from_recommendations
+    json_schema:
+      type: array
+      items:
+        type: object
+    nullable: true
+    value: null
+    description: "Chart recommendations from Chart Recommender (will use first recommendation if provided)"
+
+  - handle: selection_index
+    json_schema:
+      type: number
+    value: 0
+    nullable: true
+    description: "Which recommendation to use from the array (default: 0 = first)"
 
 outputs_def:
   - handle: vega_spec

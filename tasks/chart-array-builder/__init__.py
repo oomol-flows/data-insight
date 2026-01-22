@@ -1,21 +1,7 @@
 #region generated meta
 import typing
 class Inputs(typing.TypedDict):
-    chart1_image: str | None
-    chart1_title: str | None
-    chart1_description: str | None
-    chart2_image: str | None
-    chart2_title: str | None
-    chart2_description: str | None
-    chart3_image: str | None
-    chart3_title: str | None
-    chart3_description: str | None
-    chart4_image: str | None
-    chart4_title: str | None
-    chart4_description: str | None
-    chart5_image: str | None
-    chart5_title: str | None
-    chart5_description: str | None
+    charts: list[dict]
 class Outputs(typing.TypedDict):
     charts_array: typing.NotRequired[list[dict]]
 #endregion
@@ -25,44 +11,48 @@ from oocana import Context
 
 async def main(params: Inputs, context: Context) -> Outputs:
     """
-    Build an array of chart objects from individual chart inputs.
+    Build an array of chart objects from a list input.
 
     Automatically filters out charts that have no image data.
-    Each chart object contains: title, image (base64), and description.
+    Each chart object should contain: title, image (base64), and description.
     """
-    charts = []
+    input_charts = params.get("charts", [])
 
-    # Process up to 5 charts
-    for i in range(1, 6):
-        image_key = f"chart{i}_image"
-        title_key = f"chart{i}_title"
-        desc_key = f"chart{i}_description"
+    if not input_charts:
+        raise ValueError("No charts provided. The 'charts' parameter is required and must be a non-empty array.")
 
-        image = params.get(image_key)
+    # Filter out invalid charts (those without images)
+    valid_charts = []
+    for i, chart in enumerate(input_charts):
+        if not isinstance(chart, dict):
+            raise ValueError(f"Chart at index {i} is not a valid object: {chart}")
 
-        # Only include charts that have an image
-        if image:
-            charts.append({
-                "title": params.get(title_key) or f"Chart {i}",
+        image = chart.get("image")
+        if image:  # Only include charts with image data
+            valid_charts.append({
+                "title": chart.get("title") or f"Chart {i + 1}",
                 "image": image,
-                "description": params.get(desc_key) or ""
+                "description": chart.get("description") or ""
             })
 
-    if not charts:
-        raise ValueError("No charts provided. At least one chart image is required.")
+    if not valid_charts:
+        raise ValueError("No valid charts found. All provided charts are missing image data.")
 
     # Preview the chart count
     preview_html = f"""
     <div style="font-family: Arial, sans-serif; padding: 20px;">
-        <h3>Chart Array Builder</h3>
-        <p><strong>Total charts:</strong> {len(charts)}</p>
-        <ul>
+        <h3>📊 Chart Array Builder</h3>
+        <p><strong>Input charts:</strong> {len(input_charts)}</p>
+        <p><strong>Valid charts:</strong> {len(valid_charts)}</p>
+        <ul style="line-height: 1.8;">
     """
 
-    for chart in charts:
+    for chart in valid_charts:
         preview_html += f"<li><strong>{chart['title']}</strong>"
         if chart['description']:
-            preview_html += f" - {chart['description']}"
+            preview_html += f" - {chart['description'][:100]}"
+            if len(chart['description']) > 100:
+                preview_html += "..."
         preview_html += "</li>"
 
     preview_html += """
@@ -72,4 +62,4 @@ async def main(params: Inputs, context: Context) -> Outputs:
 
     context.preview({"type": "html", "data": preview_html})
 
-    return {"charts_array": charts}
+    return {"charts_array": valid_charts}

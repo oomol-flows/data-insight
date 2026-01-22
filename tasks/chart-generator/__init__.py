@@ -2,11 +2,13 @@
 import typing
 class Inputs(typing.TypedDict):
     data_table: dict
-    chart_type: typing.Literal["bar", "line", "scatter", "area", "pie", "heatmap"]
-    x_field: str
-    y_field: str
+    chart_type: typing.Literal["bar", "line", "scatter", "area", "pie", "heatmap"] | None
+    x_field: str | None
+    y_field: str | None
     color_field: str | None
     size_field: str | None
+    from_recommendations: list[dict] | None
+    selection_index: int | None
 class Outputs(typing.TypedDict):
     vega_spec: typing.NotRequired[dict]
     chart_image: typing.NotRequired[str]
@@ -22,21 +24,52 @@ async def main(params: Inputs, context: Context) -> Outputs:
     """
     Generate charts using Vega-Lite.
 
-    Supports multiple chart types (bar, line, scatter, area, pie, heatmap)
-    and outputs both Vega-Lite spec and rendered PNG image.
+    Supports two modes:
+    1. Direct field specification (chart_type, x_field, y_field, etc.)
+    2. From Chart Recommender output (from_recommendations + selection_index)
+
+    Outputs both Vega-Lite spec and rendered PNG image.
     """
     data_table = params["data_table"]
-    chart_type = params["chart_type"]
-    x_field = params["x_field"]
-    y_field = params["y_field"]
-    color_field = params.get("color_field")
-    size_field = params.get("size_field")
+
+    # Determine chart configuration
+    from_recommendations = params.get("from_recommendations")
+
+    if from_recommendations:
+        # Mode 2: Extract from recommendations
+        selection_index = params.get("selection_index") or 0
+
+        if not isinstance(from_recommendations, list) or len(from_recommendations) == 0:
+            raise ValueError("from_recommendations must be a non-empty array")
+
+        if selection_index >= len(from_recommendations):
+            raise ValueError(f"selection_index {selection_index} out of range (recommendations has {len(from_recommendations)} items)")
+
+        recommendation = from_recommendations[selection_index]
+        chart_type = recommendation.get("chart_type")
+        x_field = recommendation.get("x_field")
+        y_field = recommendation.get("y_field")
+        color_field = recommendation.get("color_field") or None
+        size_field = recommendation.get("size_field") or None
+
+        context.report_progress(20)
+    else:
+        # Mode 1: Direct specification
+        chart_type = params.get("chart_type")
+        x_field = params.get("x_field")
+        y_field = params.get("y_field")
+        color_field = params.get("color_field")
+        size_field = params.get("size_field")
+
+        context.report_progress(10)
 
     # Validate inputs
     if not data_table or not data_table.get("rows"):
         raise ValueError("Data table is empty or invalid")
+    if not chart_type:
+        raise ValueError("chart_type is required")
     if not x_field or not y_field:
-        raise ValueError("X and Y fields are required")
+        raise ValueError("x_field and y_field are required")
 
     # Convert to DataFrame
     df = pd.DataFrame(data_table["rows"])

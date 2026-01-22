@@ -227,14 +227,15 @@ Recommend 2-3 most effective visualizations for this data and goal."""
 
     # Validate recommendations
     for rec in recommendations:
-        if "chart_type" not in rec:
-            raise ValueError(f"Recommendation missing 'chart_type': {rec}")
+        # Validate required fields (chart_type, x_field, y_field must be present and non-empty)
+        required_fields = ["chart_type", "x_field", "y_field"]
+        missing_fields = [f for f in required_fields if not rec.get(f)]
+        if missing_fields:
+            raise ValueError(f"Recommendation missing required fields {missing_fields}: {rec}")
 
-        # Ensure all expected fields exist
-        rec.setdefault("x_field", None)
-        rec.setdefault("y_field", None)
-        rec.setdefault("color_field", None)
-        rec.setdefault("size_field", None)
+        # Ensure optional fields exist (use empty string instead of None for string fields)
+        rec.setdefault("color_field", "")
+        rec.setdefault("size_field", "")
         rec.setdefault("reason", "")
         rec.setdefault("priority", 1)
 
