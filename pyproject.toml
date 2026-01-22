@@ -1,7 +1,7 @@
 [project]
-name = "data-111"
+name = "data-insight"
 version = "0.1.0"
-description = ""
+description = "OOMOL-based data analysis and visualization workflow toolkit"
 authors = [
     {name = "shaun",email = "beingswu@gmail.com"}
 ]
@@ -27,7 +27,7 @@ dependencies = [
 
 [tool.poetry]
 package-mode = false
-packages = [{include = "data_111", from = "src"}]
+packages = [{include = "data_insight", from = "src"}]
 
 
 [build-system]

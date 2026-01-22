@@ -1,3 +1,6 @@
 {
+  "name": "data-insight",
+  "version": "0.1.0",
+  "description": "OOMOL-based data analysis and visualization workflow toolkit",
   "private": true
 }
