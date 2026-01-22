@@ -3,7 +3,7 @@ import typing
 class Inputs(typing.TypedDict):
     source_type: typing.Literal["csv", "excel", "json", "mysql", "postgresql", "sqlite"]
     file_path: str | None
-    database_config: dict | None
+    database_config: str | None
 class Outputs(typing.TypedDict):
     data_table: typing.NotRequired[dict]
     preview_html: typing.NotRequired[str]

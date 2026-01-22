@@ -1,7 +1,5 @@
 #region generated meta
 import typing
-
-
 class Inputs(typing.TypedDict):
     chart1_image: str | None
     chart1_title: str | None
@@ -18,12 +16,8 @@ class Inputs(typing.TypedDict):
     chart5_image: str | None
     chart5_title: str | None
     chart5_description: str | None
-
-
 class Outputs(typing.TypedDict):
-    charts_array: typing.List[typing.Dict[str, str]]
-
-
+    charts_array: typing.NotRequired[list[dict]]
 #endregion
 
 from oocana import Context

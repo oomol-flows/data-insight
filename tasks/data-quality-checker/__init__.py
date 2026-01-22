@@ -1,21 +1,15 @@
 #region generated meta
 import typing
 from oocana import LLMModelOptions
-
-
 class Inputs(typing.TypedDict):
-    data_table: typing.Dict[str, typing.Any]
+    data_table: dict
     auto_clean: bool
     llm: LLMModelOptions
-
-
 class Outputs(typing.TypedDict):
-    quality_report: typing.Dict[str, typing.Any]
-    cleaning_suggestions: str
-    cleaned_table: typing.Dict[str, typing.Any]
-    quality_visualization: str | None
-
-
+    quality_report: typing.NotRequired[dict]
+    cleaning_suggestions: typing.NotRequired[str]
+    cleaned_table: typing.NotRequired[dict]
+    quality_visualization: typing.NotRequired[str | None]
 #endregion
 
 from oocana import Context
