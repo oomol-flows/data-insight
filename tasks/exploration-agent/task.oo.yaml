@@ -54,8 +54,13 @@ outputs_def:
           chart_image:
             type: string
           chart_type:
-            type: string
-            enum: [bar, line, scatter, area, pie, heatmap]
+            enum:
+              - bar
+              - line
+              - scatter
+              - area
+              - pie
+              - heatmap
     description: "Array of exploration steps with transformations, insights, and charts"
     nullable: false
 

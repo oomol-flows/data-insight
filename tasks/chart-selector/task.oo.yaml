@@ -7,7 +7,6 @@ inputs_def:
         type: object
         properties:
           chart_type:
-            type: string
             enum:
               - bar
               - line
@@ -39,7 +38,6 @@ inputs_def:
 outputs_def:
   - handle: chart_type
     json_schema:
-      type: string
       enum:
         - bar
         - line
@@ -47,37 +45,45 @@ outputs_def:
         - area
         - pie
         - heatmap
+      ui:options:
+        labels:
+          - Bar Chart
+          - Line Chart
+          - Scatter Plot
+          - Area Chart
+          - Pie Chart
+          - Heatmap
     description: "Selected chart type"
     nullable: false
 
   - handle: x_field
+    description: Selected X field
     json_schema:
       type: string
-    description: "Selected X field"
     nullable: false
 
   - handle: y_field
+    description: Selected Y field
     json_schema:
       type: string
-    description: "Selected Y field"
     nullable: false
 
   - handle: color_field
+    description: Selected color field (may be empty string)
     json_schema:
       type: string
-    description: "Selected color field (may be empty string)"
     nullable: true
 
   - handle: size_field
+    description: Selected size field (may be empty string)
     json_schema:
       type: string
-    description: "Selected size field (may be empty string)"
     nullable: true
 
   - handle: selected_recommendation
+    description: The complete selected recommendation object
     json_schema:
       type: object
-    description: "The complete selected recommendation object"
     nullable: false
 
 executor:

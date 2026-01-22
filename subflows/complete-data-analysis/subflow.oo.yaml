@@ -1,5 +1,6 @@
 title: "Complete Data Analysis Pipeline"
-description: "End-to-end automated data analysis: Load → Transform → Visualize → Report. Perfect for quick insights from CSV/Excel files."
+description: "End-to-end automated data analysis: Load → Transform → Visualize →
+  Report. Perfect for quick insights from CSV/Excel files."
 
 inputs_def:
   - handle: data_file
@@ -223,3 +224,4 @@ forward_previews:
   - load#1
   - chart#1
   - report#1
+icon: ":carbon:ai-label:"

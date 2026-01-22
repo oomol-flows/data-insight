@@ -12,8 +12,13 @@ inputs_def:
 
   - handle: chart_type
     json_schema:
-      type: string
-      enum: [bar, line, scatter, area, pie, heatmap]
+      enum:
+        - bar
+        - line
+        - scatter
+        - area
+        - pie
+        - heatmap
       ui:options:
         labels:
           - Bar Chart

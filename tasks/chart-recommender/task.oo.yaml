@@ -39,7 +39,6 @@ outputs_def:
         type: object
         properties:
           chart_type:
-            type: string
             enum:
               - bar
               - line

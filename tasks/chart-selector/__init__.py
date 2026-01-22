@@ -4,7 +4,7 @@ class Inputs(typing.TypedDict):
     recommendations: list[dict]
     selection_index: float | None
 class Outputs(typing.TypedDict):
-    chart_type: typing.NotRequired[str]
+    chart_type: typing.NotRequired[typing.Literal["bar", "line", "scatter", "area", "pie", "heatmap"]]
     x_field: typing.NotRequired[str]
     y_field: typing.NotRequired[str]
     color_field: typing.NotRequired[str | None]
