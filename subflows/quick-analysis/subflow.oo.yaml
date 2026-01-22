@@ -1,0 +1,309 @@
+inputs_def:
+  - handle: data_table
+    description: "Input data table for quick analysis"
+    json_schema:
+      type: object
+      properties:
+        columns:
+          type: array
+        rows:
+          type: array
+        schema:
+          type: object
+    nullable: false
+
+  - group: Quality Check Options
+    collapsed: true
+
+  - handle: auto_clean
+    json_schema:
+      type: boolean
+    value: true
+    nullable: false
+    description: "Automatically clean common issues"
+
+  - group: Analysis Options
+    collapsed: true
+
+  - handle: analysis_type
+    description: "Type of statistical analysis"
+    json_schema:
+      type: string
+      enum:
+        - correlation
+        - t_test
+        - descriptive_stats
+        - normality_test
+      ui:options:
+        labels:
+          - Correlation Analysis
+          - T-Test (Two Sample)
+          - Descriptive Statistics
+          - Normality Test
+    value: descriptive_stats
+    nullable: false
+
+  - handle: analysis_goal
+    description: "Optional goal for chart recommendations"
+    json_schema:
+      type: string
+      ui:widget: text
+    value: null
+    nullable: true
+
+  - group: LLM Configuration
+    collapsed: true
+
+  - handle: llm
+    description: "LLM configuration for analysis"
+    json_schema:
+      ui:widget: llm::model
+    value:
+      model: oomol-chat
+      temperature: 0.5
+      top_p: 1
+      max_tokens: 128000
+    nullable: false
+
+outputs_def:
+  - handle: quality_report
+    json_schema:
+      type: object
+      properties:
+        overall_score:
+          type: number
+        missing_values:
+          type: object
+        outliers:
+          type: object
+        type_issues:
+          type: array
+        duplicate_rows:
+          type: number
+    description: "Data quality assessment report"
+    nullable: false
+
+  - handle: statistics
+    json_schema:
+      type: object
+    description: "Statistical analysis results"
+    nullable: false
+
+  - handle: chart_configs
+    json_schema:
+      type: array
+      items:
+        type: object
+        properties:
+          chart_type:
+            enum:
+              - bar
+              - line
+              - scatter
+              - area
+              - pie
+              - heatmap
+          x_field:
+            type: string
+          y_field:
+            type: string
+          color_field:
+            type: string
+          size_field:
+            type: string
+          reason:
+            type: string
+          priority:
+            type: number
+    description: "Recommended chart configurations"
+    nullable: false
+
+  - handle: charts_array
+    json_schema:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          image:
+            type: string
+          description:
+            type: string
+    description: "Generated charts array"
+    nullable: false
+
+nodes:
+  # 1. Data Quality Check
+  - node_id: quality_check#1
+    task: self::data-quality-checker
+    inputs_from:
+      - handle: data_table
+        from_flow:
+          - input_handle: data_table
+      - handle: auto_clean
+        from_flow:
+          - input_handle: auto_clean
+      - handle: llm
+        from_flow:
+          - input_handle: llm
+    progress_weight: 15
+
+  # 2. Statistical Analysis
+  - node_id: stats#1
+    task: self::statistical-analyzer
+    inputs_from:
+      - handle: data_table
+        from_node:
+          - node_id: quality_check#1
+            output_handle: cleaned_table
+      - handle: analysis_type
+        from_flow:
+          - input_handle: analysis_type
+      - handle: variables
+        value: null
+      - handle: llm
+        from_flow:
+          - input_handle: llm
+    progress_weight: 20
+
+  # 3. Chart Recommendation
+  - node_id: recommend#1
+    task: self::chart-recommender
+    inputs_from:
+      - handle: data_table
+        from_node:
+          - node_id: quality_check#1
+            output_handle: cleaned_table
+      - handle: analysis_goal
+        from_flow:
+          - input_handle: analysis_goal
+      - handle: llm
+        from_flow:
+          - input_handle: llm
+    progress_weight: 20
+
+  # 4. Generate Chart
+  - node_id: charts#1
+    task: self::chart-generator
+    inputs_from:
+      - handle: data_table
+        from_node:
+          - node_id: quality_check#1
+            output_handle: cleaned_table
+      - handle: chart_type
+        from_node:
+          - node_id: recommend#1
+            output_handle: chart_type
+      - handle: x_field
+        from_node:
+          - node_id: recommend#1
+            output_handle: x_field
+      - handle: y_field
+        from_node:
+          - node_id: recommend#1
+            output_handle: y_field
+      - handle: color_field
+        from_node:
+          - node_id: recommend#1
+            output_handle: color_field
+      - handle: size_field
+        from_node:
+          - node_id: recommend#1
+            output_handle: size_field
+      - handle: from_recommendations
+        value: null
+      - handle: selection_index
+        value: 0
+    progress_weight: 25
+
+  # 5. Build Chart Array (scriptlet)
+  - node_id: +python#1
+    title: "Build Charts Array"
+    icon: ":logos:python:"
+    task:
+      inputs_def:
+        - handle: chart_image
+          json_schema:
+            type: string
+          nullable: false
+        - handle: chart_type
+          json_schema:
+            type: string
+          nullable: false
+        - handle: chart_title
+          json_schema:
+            type: string
+          nullable: false
+      outputs_def:
+        - handle: charts
+          json_schema:
+            type: array
+            items:
+              type: object
+              properties:
+                title:
+                  type: string
+                image:
+                  type: string
+                description:
+                  type: string
+          nullable: false
+          description: Array of chart objects to combine
+      executor:
+        name: python
+        options:
+          entry: scriptlets/+scriptlet#1.py
+    inputs_from:
+      - handle: chart_image
+        from_node:
+          - node_id: charts#1
+            output_handle: chart_image
+      - handle: chart_type
+        from_node:
+          - node_id: recommend#1
+            output_handle: chart_type
+      - handle: chart_title
+        from_node:
+          - node_id: recommend#1
+            output_handle: chart_title
+    progress_weight: 5
+
+  # 6. Chart Array Builder
+  - node_id: chart_array#1
+    task: self::chart-array-builder
+    inputs_from:
+      - handle: charts
+        from_node:
+          - node_id: +python#1
+            output_handle: charts
+    progress_weight: 15
+
+outputs_from:
+  - handle: quality_report
+    from_node:
+      - node_id: quality_check#1
+        output_handle: quality_report
+
+  - handle: statistics
+    from_node:
+      - node_id: stats#1
+        output_handle: test_result
+
+  - handle: chart_configs
+    from_node:
+      - node_id: recommend#1
+        output_handle: recommended_charts
+
+  - handle: charts_array
+    from_node:
+      - node_id: chart_array#1
+        output_handle: charts_array
+
+forward_previews:
+  - charts#1
+
+title: "Quick Data Analysis"
+icon: ":carbon:chart-combo:"
+description: "Perform quick data analysis including quality check, statistics,
+  and chart generation"

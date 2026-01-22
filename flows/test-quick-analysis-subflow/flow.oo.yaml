@@ -1,0 +1,32 @@
+title: Test Quick Analysis Subflow
+description: Test flow for the quick-analysis subflow
+
+nodes:
+  - node_id: quick_analysis#1
+    subflow: self::quick-analysis
+    inputs_from:
+      - handle: data_table
+        value:
+          columns: ["Name", "Age", "Score"]
+          rows:
+            - ["Alice", 25, 85]
+            - ["Bob", 30, 92]
+            - ["Charlie", 28, 78]
+            - ["David", 35, 88]
+            - ["Eve", 22, 95]
+          schema:
+            Name: { type: "string" }
+            Age: { type: "number" }
+            Score: { type: "number" }
+      - handle: auto_clean
+        value: true
+      - handle: analysis_type
+        value: descriptive_stats
+      - handle: analysis_goal
+        value: null
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000

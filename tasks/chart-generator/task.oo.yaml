@@ -72,7 +72,8 @@ inputs_def:
         type: object
     nullable: true
     value: null
-    description: "Chart recommendations from Chart Recommender (will use first recommendation if provided)"
+    description: "Chart recommendations from Chart Recommender (will use first
+      recommendation if provided)"
 
   - handle: selection_index
     json_schema:

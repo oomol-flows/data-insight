@@ -1,5 +1,6 @@
 title: "Test Exploration Agent with Report"
-description: "Test the integration of Exploration Agent with Report Generator to validate the complete multi-round analysis pipeline"
+description: "Test the integration of Exploration Agent with Report Generator to
+  validate the complete multi-round analysis pipeline"
 
 nodes:
   # Step 1: Load sample data
@@ -22,13 +23,14 @@ nodes:
           - node_id: load#1
             output_handle: data_table
       - handle: exploration_goal
-        value: "Analyze sales patterns and identify key trends. Focus on regional performance and temporal patterns."
+        value: "Analyze sales patterns and identify key trends. Focus on regional
+          performance and temporal patterns."
       - handle: max_iterations
         value: 3
       - handle: llm
         value:
           model: oomol-chat
-          temperature: 0.3
+          temperature: 0.5
           top_p: 1
           max_tokens: 128000
 

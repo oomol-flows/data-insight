@@ -7,6 +7,12 @@ class Inputs(typing.TypedDict):
     llm: LLMModelOptions
 class Outputs(typing.TypedDict):
     recommended_charts: typing.NotRequired[list[dict]]
+    chart_type: typing.NotRequired[typing.Literal["bar", "line", "scatter", "area", "pie", "heatmap"]]
+    x_field: typing.NotRequired[str]
+    y_field: typing.NotRequired[str]
+    color_field: typing.NotRequired[str | None]
+    size_field: typing.NotRequired[str | None]
+    chart_title: typing.NotRequired[str]
 #endregion
 
 from oocana import Context
@@ -210,20 +216,42 @@ Recommend 2-3 most effective visualizations for this data and goal."""
         api_key=await context.oomol_token(),
     )
 
-    response = client.chat.completions.create(
-        model=llm.get("model", "oomol-chat"),
-        messages=[
-            {"role": "system", "content": CHART_RECOMMENDATION_SYSTEM_PROMPT},
-            {"role": "user", "content": user_prompt},
-        ],
-        temperature=llm.get("temperature", 0.3),
-        max_tokens=llm.get("max_tokens", 128000),
-    )
+    max_tokens = llm.get("max_tokens", 128000)
+
+    # Use streaming if max_tokens > 4096 (API requirement)
+    if max_tokens > 4096:
+        stream = client.chat.completions.create(
+            model=llm.get("model", "oomol-chat"),
+            messages=[
+                {"role": "system", "content": CHART_RECOMMENDATION_SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=llm.get("temperature", 0.3),
+            max_tokens=max_tokens,
+            stream=True,
+        )
+
+        # Collect streamed response
+        content = ""
+        for chunk in stream:
+            if chunk.choices[0].delta.content:
+                content += chunk.choices[0].delta.content
+    else:
+        response = client.chat.completions.create(
+            model=llm.get("model", "oomol-chat"),
+            messages=[
+                {"role": "system", "content": CHART_RECOMMENDATION_SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=llm.get("temperature", 0.3),
+            max_tokens=max_tokens,
+        )
+        content = response.choices[0].message.content
 
     context.report_progress(80)
 
     # Parse recommendations
-    recommendations = extract_json_from_response(response.choices[0].message.content)
+    recommendations = extract_json_from_response(content)
 
     # Validate recommendations
     for rec in recommendations:
@@ -233,9 +261,11 @@ Recommend 2-3 most effective visualizations for this data and goal."""
         if missing_fields:
             raise ValueError(f"Recommendation missing required fields {missing_fields}: {rec}")
 
-        # Ensure optional fields exist (use empty string instead of None for string fields)
-        rec.setdefault("color_field", "")
-        rec.setdefault("size_field", "")
+        # Ensure optional fields exist (use None for empty values)
+        if not rec.get("color_field"):
+            rec["color_field"] = None
+        if not rec.get("size_field"):
+            rec["size_field"] = None
         rec.setdefault("reason", "")
         rec.setdefault("priority", 1)
 
@@ -299,4 +329,20 @@ Recommend 2-3 most effective visualizations for this data and goal."""
 
     context.report_progress(100)
 
-    return {"recommended_charts": recommendations}
+    # Extract top recommendation fields for easy connection
+    top_rec = recommendations[0]
+
+    # Generate chart title based on analysis goal and chart type
+    chart_title = f"{top_rec['chart_type'].capitalize()} Chart"
+    if analysis_goal and len(analysis_goal) < 100:
+        chart_title = analysis_goal[:80]
+
+    return {
+        "recommended_charts": recommendations,
+        "chart_type": top_rec["chart_type"],
+        "x_field": top_rec["x_field"],
+        "y_field": top_rec["y_field"],
+        "color_field": top_rec["color_field"],
+        "size_field": top_rec["size_field"],
+        "chart_title": chart_title,
+    }

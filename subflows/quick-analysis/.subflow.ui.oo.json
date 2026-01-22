@@ -1,10 +1,18 @@
 {
   "nodes": {
-    "load#1": {
+    "quality_check#1": {
       "rfNode": {
         "position": {
           "x": 486,
-          "y": 186
+          "y": 0
+        }
+      }
+    },
+    "stats#1": {
+      "rfNode": {
+        "position": {
+          "x": 972,
+          "y": 459.5
         }
       }
     },
@@ -12,47 +20,31 @@
       "rfNode": {
         "position": {
           "x": 972,
-          "y": 182.25
+          "y": 1553.5
         }
       }
     },
-    "select#1": {
+    "charts#1": {
       "rfNode": {
         "position": {
           "x": 1458,
-          "y": 152.75
+          "y": 1121
         }
       }
     },
-    "transform#1": {
+    "+python#1": {
       "rfNode": {
         "position": {
-          "x": 1458,
-          "y": 706.75
+          "x": 1944,
+          "y": 1382.25
         }
       }
     },
-    "chart#1": {
+    "chart_array#1": {
       "rfNode": {
         "position": {
-          "x": 2111.759835057519,
-          "y": 209.0415683370334
-        }
-      }
-    },
-    "array#1": {
-      "rfNode": {
-        "position": {
-          "x": 2806.297823386063,
-          "y": 5.7450049371917995
-        }
-      }
-    },
-    "report#1": {
-      "rfNode": {
-        "position": {
-          "x": 2916,
-          "y": 709
+          "x": 2832.729784937825,
+          "y": 1419.6845651765295
         }
       }
     }
@@ -62,15 +54,24 @@
       "rfNode": {
         "position": {
           "x": 0,
-          "y": 912
+          "y": 841.25
+        }
+      },
+      "sections": {
+        "subflowInput": {
+          "groupCollapsed": {
+            "Quality Check Options": true,
+            "Analysis Options": true,
+            "LLM Configuration": true
+          }
         }
       }
     },
     "output": {
       "rfNode": {
         "position": {
-          "x": 3402,
-          "y": 705
+          "x": 2916,
+          "y": 892.5
         }
       }
     }

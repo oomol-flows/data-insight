@@ -392,20 +392,46 @@ Provide a concise interpretation (2-3 sentences) including:
         api_key=await context.oomol_token(),
     )
 
-    response = client.chat.completions.create(
-        model=llm.get("model", "oomol-chat"),
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a statistical expert. Provide clear, concise interpretations of statistical results for a general audience. Use plain language and avoid jargon."
-            },
-            {"role": "user", "content": prompt}
-        ],
-        temperature=llm.get("temperature", 0.3),
-        max_tokens=llm.get("max_tokens", 128000),
-    )
+    max_tokens = llm.get("max_tokens", 128000)
 
-    return response.choices[0].message.content.strip()
+    # Use streaming if max_tokens > 4096 (API requirement)
+    if max_tokens > 4096:
+        stream = client.chat.completions.create(
+            model=llm.get("model", "oomol-chat"),
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a statistical expert. Provide clear, concise interpretations of statistical results for a general audience. Use plain language and avoid jargon."
+                },
+                {"role": "user", "content": prompt}
+            ],
+            temperature=llm.get("temperature", 0.3),
+            max_tokens=max_tokens,
+            stream=True,
+        )
+
+        # Collect streamed response
+        content = ""
+        for chunk in stream:
+            if chunk.choices[0].delta.content:
+                content += chunk.choices[0].delta.content
+
+        return content.strip()
+    else:
+        response = client.chat.completions.create(
+            model=llm.get("model", "oomol-chat"),
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a statistical expert. Provide clear, concise interpretations of statistical results for a general audience. Use plain language and avoid jargon."
+                },
+                {"role": "user", "content": prompt}
+            ],
+            temperature=llm.get("temperature", 0.3),
+            max_tokens=max_tokens,
+        )
+
+        return response.choices[0].message.content.strip()
 
 
 def format_results_preview(

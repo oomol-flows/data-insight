@@ -14,6 +14,13 @@ nodes:
             type: array
             items:
               type: object
+              properties:
+                title:
+                  type: string
+                image:
+                  type: string
+                description:
+                  type: string
           nullable: false
       executor:
         name: python

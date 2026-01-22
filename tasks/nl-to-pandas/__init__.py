@@ -182,7 +182,7 @@ def execute_in_sandbox(code: str, df: pd.DataFrame) -> tuple[pd.DataFrame, str]:
         raise RuntimeError(error_msg)
 
 
-def repair_code_via_llm(
+async def repair_code_via_llm(
     original_code: str, error: str, instruction: str, llm: dict, context: Context
 ) -> str:
     """Attempt to repair failed code using LLM"""
@@ -206,7 +206,7 @@ Please fix the code to handle this error. Return the corrected code in the same 
 
     client = OpenAI(
         base_url=context.oomol_llm_env.get("base_url_v1"),
-        api_key=context.oomol_token(),
+        api_key=await context.oomol_token(),
     )
 
     response = client.chat.completions.create(
@@ -287,20 +287,42 @@ Generate Pandas code to accomplish this transformation."""
         api_key=await context.oomol_token(),
     )
 
-    response = client.chat.completions.create(
-        model=llm.get("model", "oomol-chat"),
-        messages=[
-            {"role": "system", "content": PANDAS_SYSTEM_PROMPT},
-            {"role": "user", "content": user_prompt},
-        ],
-        temperature=llm.get("temperature", 0),
-        max_tokens=llm.get("max_tokens", 128000),
-    )
+    max_tokens = llm.get("max_tokens", 128000)
+
+    # Use streaming if max_tokens > 4096 (API requirement)
+    if max_tokens > 4096:
+        stream = client.chat.completions.create(
+            model=llm.get("model", "oomol-chat"),
+            messages=[
+                {"role": "system", "content": PANDAS_SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=llm.get("temperature", 0),
+            max_tokens=max_tokens,
+            stream=True,
+        )
+
+        # Collect streamed response
+        content = ""
+        for chunk in stream:
+            if chunk.choices[0].delta.content:
+                content += chunk.choices[0].delta.content
+    else:
+        response = client.chat.completions.create(
+            model=llm.get("model", "oomol-chat"),
+            messages=[
+                {"role": "system", "content": PANDAS_SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=llm.get("temperature", 0),
+            max_tokens=max_tokens,
+        )
+        content = response.choices[0].message.content
 
     context.report_progress(50)
 
     # Parse response
-    result = extract_json_from_response(response.choices[0].message.content)
+    result = extract_json_from_response(content)
     python_code = result["python_code"]
     explanation = result.get("explanation", "")
 
@@ -312,7 +334,7 @@ Generate Pandas code to accomplish this transformation."""
     except Exception as e:
         # Attempt to repair code
         try:
-            repaired_code = repair_code_via_llm(
+            repaired_code = await repair_code_via_llm(
                 python_code, str(e), instruction, llm, context
             )
             result_df, logs = execute_in_sandbox(repaired_code, df)

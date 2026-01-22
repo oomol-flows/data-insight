@@ -8,7 +8,7 @@ class Inputs(typing.TypedDict):
     color_field: str | None
     size_field: str | None
     from_recommendations: list[dict] | None
-    selection_index: int | None
+    selection_index: float | None
 class Outputs(typing.TypedDict):
     vega_spec: typing.NotRequired[dict]
     chart_image: typing.NotRequired[str]
@@ -37,7 +37,7 @@ async def main(params: Inputs, context: Context) -> Outputs:
 
     if from_recommendations:
         # Mode 2: Extract from recommendations
-        selection_index = params.get("selection_index") or 0
+        selection_index = int(params.get("selection_index") or 0)
 
         if not isinstance(from_recommendations, list) or len(from_recommendations) == 0:
             raise ValueError("from_recommendations must be a non-empty array")

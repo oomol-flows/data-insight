@@ -60,6 +60,53 @@ outputs_def:
             type: number
     description: "%chart-recommender-recommended-charts%"
 
+  - group: Top Recommendation Fields
+    collapsed: false
+
+  - handle: chart_type
+    json_schema:
+      enum:
+        - bar
+        - line
+        - scatter
+        - area
+        - pie
+        - heatmap
+    description: "Chart type of the top recommendation"
+    nullable: false
+
+  - handle: x_field
+    json_schema:
+      type: string
+    description: "X-axis field of the top recommendation"
+    nullable: false
+
+  - handle: y_field
+    json_schema:
+      type: string
+    description: "Y-axis field of the top recommendation"
+    nullable: false
+
+  - handle: color_field
+    json_schema:
+      type: string
+    description: "Color field of the top recommendation (null if not used)"
+    nullable: true
+    value: null
+
+  - handle: size_field
+    json_schema:
+      type: string
+    description: "Size field of the top recommendation (null if not used)"
+    nullable: true
+    value: null
+
+  - handle: chart_title
+    json_schema:
+      type: string
+    description: "Generated chart title"
+    nullable: false
+
 executor:
   name: python
   options:

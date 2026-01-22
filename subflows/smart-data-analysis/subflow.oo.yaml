@@ -1,0 +1,127 @@
+title: "Smart Data Analysis (Multi-Round)"
+description: "AI-powered multi-round exploratory analysis with automatic
+  insights discovery. Uses Exploration Agent for intelligent data
+  investigation."
+
+inputs_def:
+  - handle: data_file
+    json_schema:
+      type: string
+      ui:widget: file
+    description: "Path to CSV or Excel data file"
+    nullable: false
+
+  - handle: analysis_goal
+    json_schema:
+      type: string
+      ui:widget: text
+    description: "Your high-level analysis goal (e.g., 'Discover sales trends and
+      anomalies')"
+    nullable: false
+
+  - handle: source_type
+    json_schema:
+      type: string
+      enum:
+        - csv
+        - excel
+        - json
+      ui:options:
+        labels:
+          - CSV File
+          - Excel File
+          - JSON File
+    value: csv
+    nullable: false
+    description: "Type of data file"
+
+  - handle: max_iterations
+    json_schema:
+      type: number
+    value: 3
+    nullable: true
+    description: "Number of exploration rounds (default: 3)"
+
+outputs_def:
+  - handle: final_report
+    json_schema:
+      type: string
+    description: "Comprehensive analysis report with multiple charts and insights"
+    nullable: false
+
+  - handle: exploration_steps
+    json_schema:
+      type: array
+    description: "Detailed exploration steps taken by the AI"
+    nullable: false
+
+nodes:
+  # Step 1: Load data from file
+  - node_id: load#1
+    task: self::data-loader
+    inputs_from:
+      - handle: source_type
+        from_flow:
+          - input_handle: source_type
+      - handle: file_path
+        from_flow:
+          - input_handle: data_file
+      - handle: database_config
+        value: null
+
+  # Step 2: Run multi-round exploration
+  - node_id: explore#1
+    task: self::exploration-agent
+    inputs_from:
+      - handle: input_table
+        from_node:
+          - node_id: load#1
+            output_handle: data_table
+      - handle: exploration_goal
+        from_flow:
+          - input_handle: analysis_goal
+      - handle: max_iterations
+        from_flow:
+          - input_handle: max_iterations
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000
+
+  # Step 3: Generate final comprehensive report
+  - node_id: report#1
+    task: self::report-generator
+    inputs_from:
+      - handle: charts
+        from_node:
+          - node_id: explore#1
+            output_handle: chart_images
+      - handle: analysis_goal
+        from_flow:
+          - input_handle: analysis_goal
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000
+
+outputs_from:
+  - handle: final_report
+    from_node:
+      - node_id: report#1
+        output_handle: markdown_report
+
+  - handle: exploration_steps
+    from_node:
+      - node_id: explore#1
+        output_handle: exploration_steps
+
+forward_previews:
+  - load#1
+  - explore#1
+  - report#1
+
+icon: ":carbon:analytics:"

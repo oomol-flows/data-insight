@@ -282,18 +282,40 @@ Previous steps:
 Plan the next analytical step to discover insights.
 """
 
-        try:
-            response = client.chat.completions.create(
-                model=llm.get("model", "oomol-chat"),
-                messages=[
-                    {"role": "system", "content": EXPLORATION_SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=llm.get("temperature", 0.3),
-                max_tokens=llm.get("max_tokens", 128000),
-            )
+        max_tokens = llm.get("max_tokens", 128000)
 
-            step_plan = extract_json_from_response(response.choices[0].message.content)
+        try:
+            # Use streaming if max_tokens > 4096 (API requirement)
+            if max_tokens > 4096:
+                stream = client.chat.completions.create(
+                    model=llm.get("model", "oomol-chat"),
+                    messages=[
+                        {"role": "system", "content": EXPLORATION_SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=llm.get("temperature", 0.3),
+                    max_tokens=max_tokens,
+                    stream=True,
+                )
+
+                # Collect streamed response
+                content = ""
+                for chunk in stream:
+                    if chunk.choices[0].delta.content:
+                        content += chunk.choices[0].delta.content
+            else:
+                response = client.chat.completions.create(
+                    model=llm.get("model", "oomol-chat"),
+                    messages=[
+                        {"role": "system", "content": EXPLORATION_SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=llm.get("temperature", 0.3),
+                    max_tokens=max_tokens,
+                )
+                content = response.choices[0].message.content
+
+            step_plan = extract_json_from_response(content)
 
         except Exception as e:
             raise RuntimeError(f"Failed to generate exploration plan: {str(e)}")

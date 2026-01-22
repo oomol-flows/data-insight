@@ -38,4 +38,5 @@ executor:
 
 title: "Chart Array Builder"
 icon: ":carbon:list-boxes:"
-description: "Combine chart objects into an array for report generation. Accepts a direct array input and automatically filters out empty charts."
+description: "Combine chart objects into an array for report generation. Accepts
+  a direct array input and automatically filters out empty charts."
