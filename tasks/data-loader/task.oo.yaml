@@ -2,12 +2,21 @@ inputs_def:
   - handle: source_type
     json_schema:
       type: string
-      enum: [csv, excel, json]
+      enum:
+        - csv
+        - excel
+        - json
+        - mysql
+        - postgresql
+        - sqlite
       ui:options:
         labels:
           - CSV File
           - Excel File
           - JSON File
+          - MySQL Database
+          - PostgreSQL Database
+          - SQLite Database
     value: csv
     nullable: false
     description: "Type of data source to load"
@@ -16,8 +25,34 @@ inputs_def:
     json_schema:
       type: string
       ui:widget: file
-    nullable: false
-    description: "Path to the data file"
+    nullable: true
+    description: "Path to the data file (required for csv/excel/json)"
+
+  - group: Database Configuration
+    collapsed: true
+
+  - handle: database_config
+    json_schema:
+      type: object
+      properties:
+        host:
+          type: string
+        port:
+          type: number
+        database:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+          contentMediaType: oomol/secret
+        query:
+          type: string
+          ui:widget: text
+      ui:widget: object
+    nullable: true
+    value: null
+    description: "Database connection configuration (required for mysql/postgresql/sqlite)"
 
 outputs_def:
   - handle: data_table
@@ -51,4 +86,5 @@ executor:
 
 title: "Data Loader"
 icon: ":carbon:document-import:"
-description: "Load tabular data from multiple file formats (CSV, Excel, JSON)"
+description: "Load tabular data from multiple sources: files (CSV, Excel, JSON)
+  and databases (MySQL, PostgreSQL, SQLite)"

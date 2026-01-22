@@ -48,3 +48,47 @@ nodes:
         value: null
       - handle: size_field
         value: null
+
+  # Step 4: Prepare chart data for report
+  - node_id: +python#1
+    title: "Python #1 - Prepare Charts"
+    icon: ":logos:python:"
+    task:
+      inputs_def:
+        - handle: chart_image
+          json_schema:
+            type: string
+          nullable: false
+      outputs_def:
+        - handle: charts_array
+          json_schema:
+            type: array
+            items:
+              type: object
+          nullable: false
+      executor:
+        name: python
+        options:
+          entry: scriptlets/+scriptlet#1.py
+    inputs_from:
+      - handle: chart_image
+        from_node:
+          - node_id: chart#1
+            output_handle: chart_image
+
+  # Step 5: Generate report
+  - node_id: report#1
+    task: self::report-generator
+    inputs_from:
+      - handle: charts
+        from_node:
+          - node_id: +python#1
+            output_handle: charts_array
+      - handle: analysis_goal
+        value: "Analyze sales performance across different regions"
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000

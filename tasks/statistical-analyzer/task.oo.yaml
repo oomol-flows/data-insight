@@ -1,0 +1,91 @@
+inputs_def:
+  - handle: data_table
+    description: "Input data table for statistical analysis"
+    json_schema:
+      type: object
+      properties:
+        columns:
+          type: array
+        rows:
+          type: array
+        schema:
+          type: object
+    nullable: false
+
+  - handle: analysis_type
+    description: "Type of statistical analysis to perform"
+    json_schema:
+      type: string
+      enum:
+        - correlation
+        - t_test
+        - descriptive_stats
+        - normality_test
+      ui:options:
+        labels:
+          - Correlation Analysis
+          - T-Test (Two Sample)
+          - Descriptive Statistics
+          - Normality Test
+    value: descriptive_stats
+    nullable: false
+
+  - group: Analysis Parameters
+    collapsed: true
+
+  - handle: variables
+    description: "Variables to analyze (field names from data_table)"
+    json_schema:
+      type: object
+      properties:
+        independent:
+          type: array
+          items:
+            type: string
+        dependent:
+          type: string
+        group_column:
+          type: string
+      ui:widget: object
+    value:
+    nullable: true
+
+  - handle: llm
+    description: "LLM configuration for generating interpretations"
+    json_schema:
+      ui:widget: llm::model
+    value:
+      model: oomol-chat
+      temperature: 0.5
+      top_p: 1
+      max_tokens: 128000
+    nullable: false
+
+outputs_def:
+  - handle: test_result
+    json_schema:
+      type: object
+    description: "Statistical test results with statistics and p-values"
+    nullable: false
+
+  - handle: interpretation
+    json_schema:
+      type: string
+    description: "AI-generated interpretation of the results"
+    nullable: false
+
+  - handle: visualization
+    json_schema:
+      type: string
+    description: "Base64 encoded visualization (if applicable)"
+    nullable: true
+
+executor:
+  name: python
+  options:
+    entry: __init__.py
+    spawn: false
+
+title: "Statistical Analyzer"
+icon: ":carbon:chart-scatter:"
+description: "Perform statistical tests and analyses with AI-powered interpretations"

@@ -1,14 +1,14 @@
 #region generated meta
 import typing
+from oocana import LLMModelOptions
 class Inputs(typing.TypedDict):
     input_table: dict
     instruction: str
-    llm: dict
-
+    llm: LLMModelOptions
 class Outputs(typing.TypedDict):
-    sql_query: str
-    result_table: dict
-    explanation: str
+    sql_query: typing.NotRequired[str]
+    result_table: typing.NotRequired[dict]
+    explanation: typing.NotRequired[str]
 #endregion
 
 from oocana import Context

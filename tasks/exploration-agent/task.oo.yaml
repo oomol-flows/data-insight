@@ -1,0 +1,71 @@
+inputs_def:
+  - handle: input_table
+    json_schema:
+      type: object
+      properties:
+        columns:
+          type: array
+        rows:
+          type: array
+        schema:
+          type: object
+    description: "Input data table for exploration"
+    nullable: false
+
+  - handle: exploration_goal
+    json_schema:
+      type: string
+      ui:widget: text
+    description: "High-level exploration goal (e.g., 'Find insights about sales trends')"
+    nullable: false
+
+  - handle: max_iterations
+    json_schema:
+      type: number
+    value: 3
+    nullable: true
+    description: "Maximum number of exploration iterations"
+
+  - handle: llm
+    json_schema:
+      ui:widget: llm::model
+    value:
+      model: oomol-chat
+      temperature: 0.3
+      max_tokens: 128000
+    nullable: false
+    description: "LLM model configuration for exploration planning"
+
+outputs_def:
+  - handle: exploration_steps
+    json_schema:
+      type: array
+      items:
+        type: object
+        properties:
+          step_number:
+            type: number
+          transformation:
+            type: string
+          insight:
+            type: string
+          sql_query:
+            type: string
+    description: "Array of exploration steps with transformations and insights"
+    nullable: false
+
+  - handle: final_report
+    json_schema:
+      type: string
+    description: "Markdown summary of key findings"
+    nullable: false
+
+executor:
+  name: python
+  options:
+    entry: __init__.py
+    spawn: false
+
+title: "Exploration Agent"
+icon: ":carbon:explore:"
+description: "Autonomous multi-round data exploration agent that discovers insights through iterative analysis"

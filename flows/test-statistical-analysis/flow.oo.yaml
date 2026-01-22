@@ -1,0 +1,33 @@
+title: "Test Statistical Analysis Flow"
+description: "Demonstrates statistical analysis capabilities: Load → Analyze → Interpret"
+
+nodes:
+  # Step 1: Load CSV data
+  - node_id: load#1
+    task: self::data-loader
+    inputs_from:
+      - handle: source_type
+        value: csv
+      - handle: file_path
+        value: /oomol-driver/oomol-storage/sample_sales.csv
+      - handle: database_config
+        value: null
+
+  # Step 2: Perform descriptive statistics
+  - node_id: stats#1
+    task: self::statistical-analyzer
+    inputs_from:
+      - handle: data_table
+        from_node:
+          - node_id: load#1
+            output_handle: data_table
+      - handle: analysis_type
+        value: descriptive_stats
+      - handle: variables
+        value: null
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000

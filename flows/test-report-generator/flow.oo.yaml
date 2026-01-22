@@ -1,0 +1,40 @@
+title: "Test Report Generator"
+description: "Test flow for report generation functionality"
+
+nodes:
+  - node_id: +python#1
+    title: "Python #1 - Generate Sample Charts"
+    icon: ":logos:python:"
+    task:
+      inputs_def:
+        []
+      outputs_def:
+        - handle: sample_charts
+          json_schema:
+            type: array
+            items:
+              type: object
+          nullable: false
+      executor:
+        name: python
+        options:
+          entry: scriptlets/+scriptlet#1.py
+    inputs_from:
+      []
+
+  - node_id: report#1
+    task: self::report-generator
+    inputs_from:
+      - handle: charts
+        from_node:
+          - node_id: +python#1
+            output_handle: sample_charts
+      - handle: analysis_goal
+        value: "Analyze sales performance across different regions and product
+          categories"
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000

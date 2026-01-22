@@ -5,12 +5,11 @@ class Inputs(typing.TypedDict):
     chart_type: typing.Literal["bar", "line", "scatter", "area", "pie", "heatmap"]
     x_field: str
     y_field: str
-    color_field: typing.Optional[str]
-    size_field: typing.Optional[str]
-
+    color_field: str | None
+    size_field: str | None
 class Outputs(typing.TypedDict):
-    vega_spec: dict
-    chart_image: str
+    vega_spec: typing.NotRequired[dict]
+    chart_image: typing.NotRequired[str]
 #endregion
 
 from oocana import Context

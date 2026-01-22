@@ -1,0 +1,57 @@
+inputs_def:
+  - handle: charts
+    description: Array of chart objects with title, base64 image, and description
+    json_schema:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          image:
+            type: string
+          description:
+            type: string
+    nullable: false
+
+  - handle: analysis_goal
+    description: The high-level goal of the analysis
+    json_schema:
+      type: string
+      ui:widget: text
+    nullable: false
+
+  - handle: llm
+    description: LLM model configuration for report generation
+    json_schema:
+      ui:widget: llm::model
+    value:
+      model: oomol-chat
+      temperature: 0.5
+      top_p: 1
+      max_tokens: 128000
+    nullable: false
+
+outputs_def:
+  - handle: markdown_report
+    json_schema:
+      type: string
+    description: "Complete markdown report with embedded charts"
+    nullable: false
+
+  - handle: report_file
+    json_schema:
+      type: string
+    description: "Path to saved markdown file"
+    nullable: false
+
+executor:
+  name: python
+  options:
+    entry: __init__.py
+    spawn: false
+
+title: "Report Generator"
+icon: ":carbon:document-tasks:"
+description: "Generate comprehensive markdown reports integrating charts and
+  AI-driven analysis"
