@@ -135,5 +135,7 @@
   "type-of-data-file": "数据文件类型",
   "number-of-exploration-rounds-default-3": "探索轮数（默认：3）",
   "comprehensive-analysis-report-with-multiple-charts-and-insights": "包含多张图表和见解的综合分析报告",
-  "detailed-exploration-steps-taken-by-the-ai": "AI 所采取的详细探索步骤"
+  "detailed-exploration-steps-taken-by-the-ai": "AI 所采取的详细探索步骤",
+  "key1": "数据洞察",
+  "transform-your-data-into-insights-without-writing-a-single-line": "无需编写任何代码，即可将您的数据转化为洞见。Data Insight 是一款可视化工具包，帮助您通过精美的报告和图表，探索、理解并传达您的数据发现。"
 }

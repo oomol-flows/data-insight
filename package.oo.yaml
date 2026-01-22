@@ -6,3 +6,5 @@ scripts:
     npm install
     poetry install --no-root
 icon: ./icon.png
+displayName: "%key1%"
+description: "%transform-your-data-into-insights-without-writing-a-single-line%"

@@ -135,5 +135,7 @@
   "type-of-data-file": "Type of data file",
   "number-of-exploration-rounds-default-3": "Number of exploration rounds (default: 3)",
   "comprehensive-analysis-report-with-multiple-charts-and-insights": "Comprehensive analysis report with multiple charts and insights",
-  "detailed-exploration-steps-taken-by-the-ai": "Detailed exploration steps taken by the AI"
+  "detailed-exploration-steps-taken-by-the-ai": "Detailed exploration steps taken by the AI",
+  "key1": "Data Insights",
+  "transform-your-data-into-insights-without-writing-a-single-line": "Transform your data into insights without writing a single line of code. Data Insight is a visual toolkit that helps you explore, understand, and communicate your data findings through beautiful reports and charts."
 }
