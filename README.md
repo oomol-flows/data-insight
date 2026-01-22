@@ -10,11 +10,14 @@ This package enables users to perform end-to-end data analysis through visual wo
 
 - **Multiple Data Sources**: Load data from CSV, Excel, and JSON files
 - **AI-Powered Data Extraction**: Extract tables from images, text, and HTML using vision models
+- **Data Quality Analysis**: Automatic detection of missing values, outliers, duplicates with AI-powered cleaning suggestions
 - **Dual Transformation Engines**:
   - SQL-based transformations via DuckDB (fast, efficient for aggregations)
   - Python Pandas transformations (flexible, supports ML operations)
 - **Intelligent Chart Recommendations**: AI analyzes data characteristics and suggests optimal visualizations
 - **Rich Visualizations**: Generate interactive charts (bar, line, scatter, area, pie, heatmap)
+- **Autonomous Exploration**: Multi-round AI agent that discovers insights with automatic chart generation
+- **Complete Analysis Pipeline**: End-to-end Subflow for one-click analysis from data to report
 - **Type-Safe Execution**: Automatic schema inference and type detection
 - **Safe Code Execution**: Sandboxed Python environment with security restrictions
 - **Automatic Error Repair**: Failed code is automatically corrected and re-executed
@@ -269,6 +272,173 @@ Autonomous multi-round data exploration agent that discovers insights through it
 - `llm`: LLM configuration
 
 **Outputs**:
+- `exploration_steps`: Array of exploration steps with transformations, insights, and charts
+- `final_report`: Markdown summary of key findings
+- `chart_images`: All generated charts ready for Report Generator
+
+**Example Use**:
+```yaml
+- node_id: explore#1
+  task: self::exploration-agent
+  inputs_from:
+    - handle: input_table
+      from_node:
+        - node_id: load#1
+          output_handle: data_table
+    - handle: exploration_goal
+      value: "Discover patterns in customer behavior and sales trends"
+    - handle: max_iterations
+      value: 5
+```
+
+**Key Features**:
+- Autonomous multi-step analysis planning
+- SQL-based data transformations at each step
+- Insight extraction from intermediate results
+- Adaptive exploration strategy
+- Comprehensive markdown report generation
+- **NEW**: Automatic chart generation at each exploration step
+- **NEW**: Chart images array output ready for Report Generator
+- Progress tracking throughout exploration
+
+---
+
+### 9. Chart Array Builder
+**Path**: [tasks/chart-array-builder](tasks/chart-array-builder)
+
+Combine multiple chart images into an array for report generation. Eliminates the need for scriptlets.
+
+**Inputs**:
+- `chart1_image` to `chart5_image`: Base64 encoded chart images (up to 5 charts)
+- `chart1_title` to `chart5_title`: Titles for each chart
+- `chart1_description` to `chart5_description`: Descriptions for each chart
+
+**Outputs**:
+- `charts_array`: Array of chart objects ready for Report Generator
+
+**Example Use**:
+```yaml
+- node_id: array#1
+  task: self::chart-array-builder
+  inputs_from:
+    - handle: chart1_image
+      from_node:
+        - node_id: chart#1
+          output_handle: chart_image
+    - handle: chart1_title
+      value: "Sales by Region"
+    - handle: chart2_image
+      from_node:
+        - node_id: chart#2
+          output_handle: chart_image
+```
+
+**Key Features**:
+- Supports up to 5 charts
+- Automatic filtering of empty charts
+- Preview of chart count and titles
+- Standard format for Report Generator
+
+---
+
+### 10. Data Quality Checker
+**Path**: [tasks/data-quality-checker](tasks/data-quality-checker)
+
+Analyze data quality, detect issues, and provide AI-powered cleaning suggestions.
+
+**Inputs**:
+- `data_table`: Data table to analyze
+- `auto_clean`: Automatically clean common issues (default: true)
+- `llm`: LLM configuration
+
+**Outputs**:
+- `quality_report`: Detailed quality assessment (missing values, outliers, duplicates, overall score)
+- `cleaning_suggestions`: AI-generated cleaning recommendations
+- `cleaned_table`: Cleaned data table (if auto_clean is enabled)
+- `quality_visualization`: Chart showing quality issues by column
+
+**Example Use**:
+```yaml
+- node_id: quality#1
+  task: self::data-quality-checker
+  inputs_from:
+    - handle: data_table
+      from_node:
+        - node_id: load#1
+          output_handle: data_table
+    - handle: auto_clean
+      value: true
+```
+
+**Key Features**:
+- Detects missing values with percentage breakdown
+- IQR-based outlier detection for numeric columns
+- Duplicate row identification
+- Type inconsistency detection
+- Overall quality score (0-100)
+- AI-powered cleaning recommendations
+- Automatic cleaning via Winsorization and imputation
+- Visual quality report with issue breakdown
+
+---
+
+## Available Subflows
+
+### 1. Complete Data Analysis Pipeline
+**Path**: [subflows/complete-data-analysis](subflows/complete-data-analysis)
+
+End-to-end automated analysis in a single node: Load → Transform → Visualize → Report.
+
+**Inputs**:
+- `data_file`: Path to CSV/Excel/JSON file
+- `analysis_question`: Your analysis goal (e.g., "Find top selling products by region")
+- `source_type`: File type (csv, excel, json)
+
+**Outputs**:
+- `final_report`: Complete Markdown analysis report with embedded charts
+- `transformed_data`: Transformed data table
+- `chart_image`: Generated chart image
+
+**Example Use**:
+```yaml
+- node_id: analysis#1
+  subflow: self::complete-data-analysis
+  inputs_from:
+    - handle: data_file
+      value: /oomol-driver/oomol-storage/sales.csv
+    - handle: analysis_question
+      value: "What are the top 5 regions by sales? Show trends."
+    - handle: source_type
+      value: csv
+```
+
+**What It Does**:
+1. Loads data from file
+2. Gets AI chart recommendations
+3. Transforms data using natural language (SQL)
+4. Generates optimal chart
+5. Creates comprehensive report
+
+**Benefits**:
+- **80% less manual work**: One node instead of 6-8
+- Perfect for quick insights and reports
+- Ideal for non-technical users
+- Follows best practices automatically
+
+---
+
+### 8. Exploration Agent
+**Path**: [tasks/exploration-agent](tasks/exploration-agent)
+
+Autonomous multi-round data exploration agent that discovers insights through iterative analysis.
+
+**Inputs**:
+- `input_table`: Data table for exploration
+- `exploration_goal`: High-level exploration goal (e.g., "Find insights about sales trends")
+- `max_iterations`: Maximum number of exploration iterations (default: 3)
+- `llm`: LLM configuration
+
+**Outputs**:
 - `exploration_steps`: Array of exploration steps with transformations and insights
 - `final_report`: Markdown summary of key findings
 
@@ -293,6 +463,8 @@ Autonomous multi-round data exploration agent that discovers insights through it
 - Insight extraction from intermediate results
 - Adaptive exploration strategy
 - Comprehensive markdown report generation
+- **NEW**: Automatic chart generation at each exploration step
+- **NEW**: Chart images array output ready for Report Generator
 - Progress tracking throughout exploration
 
 ## Example Workflow
@@ -419,7 +591,7 @@ Preview content is displayed in the OOMOL UI during flow execution and helps use
 
 ## Roadmap
 
-Based on the [OOMOL Data Analysis Blocks Guide](OOMOL_DATA_ANALYSIS_BLOCKS_GUIDE.md), the implementation is now complete:
+Based on the [OOMOL Data Analysis Blocks Guide](OOMOL_DATA_ANALYSIS_BLOCKS_GUIDE.md), the implementation progress:
 
 **Phase 1** ✅ (Completed):
 - Data Loader block (CSV, Excel, JSON)
@@ -434,17 +606,25 @@ Based on the [OOMOL Data Analysis Blocks Guide](OOMOL_DATA_ANALYSIS_BLOCKS_GUIDE
 - Enhanced previews for all blocks
 
 **Phase 3** ✅ (Completed):
-- Exploration Agent (autonomous multi-round analysis)
+- Exploration Agent (autonomous multi-round analysis with charts)
 - Report Generator (comprehensive markdown reports)
 - Complete end-to-end analysis pipeline
 - All 8 core blocks implemented
 
-**Future Enhancements**:
-- Database connections (MySQL, PostgreSQL, etc.)
-- Subflow compositions (end-to-end analysis pipeline)
-- Error auto-repair mechanisms for failed queries
-- Additional chart types and customizations
-- Real-time data streaming support
+**Phase 4** ✅ (Completed - Latest Updates):
+- ✅ Chart Array Builder block (eliminates scriptlet dependency)
+- ✅ Complete Data Analysis Subflow (one-click analysis)
+- ✅ Data Quality Checker block (auto-detect and clean issues)
+- ✅ Enhanced Exploration Agent with automatic chart generation
+- ✅ Improved type compatibility across all blocks
+
+**Future Enhancements** (Priority Order):
+1. 🟡 Parameterized Database Loader (dynamic SQL parameters)
+2. 🟡 Comparative Analysis Subflow (auto-compare datasets/time periods)
+3. 🟢 Time Series Analyzer block (trend detection, forecasting)
+4. 🟢 Statistical significance testing integration with Chart Generator
+5. 🟢 Real-time data streaming support
+6. 🟢 Advanced ML prediction blocks (regression, classification)
 
 ## Contributing
 

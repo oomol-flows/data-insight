@@ -1,0 +1,225 @@
+title: "Complete Data Analysis Pipeline"
+description: "End-to-end automated data analysis: Load → Transform → Visualize → Report. Perfect for quick insights from CSV/Excel files."
+
+inputs_def:
+  - handle: data_file
+    json_schema:
+      type: string
+      ui:widget: file
+    description: "Path to CSV or Excel data file"
+    nullable: false
+
+  - handle: analysis_question
+    json_schema:
+      type: string
+      ui:widget: text
+    description: "Your analysis goal (e.g., 'Find top selling products by region')"
+    nullable: false
+
+  - handle: source_type
+    json_schema:
+      type: string
+      enum:
+        - csv
+        - excel
+        - json
+      ui:options:
+        labels:
+          - CSV File
+          - Excel File
+          - JSON File
+    value: csv
+    nullable: false
+    description: "Type of data file"
+
+outputs_def:
+  - handle: final_report
+    json_schema:
+      type: string
+    description: "Complete Markdown analysis report with embedded charts"
+    nullable: false
+
+  - handle: transformed_data
+    json_schema:
+      type: object
+      properties:
+        columns:
+          type: array
+        rows:
+          type: array
+    description: "Transformed data table after SQL query"
+    nullable: false
+
+  - handle: chart_image
+    json_schema:
+      type: string
+    description: "Base64 encoded chart image"
+    nullable: false
+
+nodes:
+  # Step 1: Load data from file
+  - node_id: load#1
+    task: self::data-loader
+    inputs_from:
+      - handle: source_type
+        from_flow:
+          - input_handle: source_type
+      - handle: file_path
+        from_flow:
+          - input_handle: data_file
+      - handle: database_config
+        value: null
+
+  # Step 2: Get AI chart recommendations
+  - node_id: recommend#1
+    task: self::chart-recommender
+    inputs_from:
+      - handle: data_table
+        from_node:
+          - node_id: load#1
+            output_handle: data_table
+      - handle: analysis_goal
+        from_flow:
+          - input_handle: analysis_question
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000
+
+  # Step 3: Select the top recommended chart
+  - node_id: select#1
+    task: self::chart-selector
+    inputs_from:
+      - handle: recommendations
+        from_node:
+          - node_id: recommend#1
+            output_handle: recommended_charts
+      - handle: selection_index
+        value: 0
+
+  # Step 4: Transform data using natural language
+  - node_id: transform#1
+    task: self::nl-to-sql
+    inputs_from:
+      - handle: input_table
+        from_node:
+          - node_id: load#1
+            output_handle: data_table
+      - handle: instruction
+        from_flow:
+          - input_handle: analysis_question
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000
+
+  # Step 5: Generate chart based on recommendation
+  - node_id: chart#1
+    task: self::chart-generator
+    inputs_from:
+      - handle: data_table
+        from_node:
+          - node_id: transform#1
+            output_handle: result_table
+      - handle: chart_type
+        from_node:
+          - node_id: select#1
+            output_handle: chart_type
+      - handle: x_field
+        from_node:
+          - node_id: select#1
+            output_handle: x_field
+      - handle: y_field
+        from_node:
+          - node_id: select#1
+            output_handle: y_field
+      - handle: color_field
+        from_node:
+          - node_id: select#1
+            output_handle: color_field
+      - handle: size_field
+        from_node:
+          - node_id: select#1
+            output_handle: size_field
+
+  # Step 6: Build chart array
+  - node_id: array#1
+    task: self::chart-array-builder
+    inputs_from:
+      - handle: chart1_image
+        from_node:
+          - node_id: chart#1
+            output_handle: chart_image
+      - handle: chart1_title
+        value: "Analysis Visualization"
+      - handle: chart1_description
+        from_node:
+          - node_id: transform#1
+            output_handle: explanation
+      - handle: chart2_image
+        value: null
+      - handle: chart2_title
+        value: null
+      - handle: chart2_description
+        value: null
+      - handle: chart3_image
+        value: null
+      - handle: chart3_title
+        value: null
+      - handle: chart3_description
+        value: null
+      - handle: chart4_image
+        value: null
+      - handle: chart4_title
+        value: null
+      - handle: chart4_description
+        value: null
+      - handle: chart5_image
+        value: null
+      - handle: chart5_title
+        value: null
+      - handle: chart5_description
+        value: null
+
+  # Step 7: Generate comprehensive report
+  - node_id: report#1
+    task: self::report-generator
+    inputs_from:
+      - handle: charts
+        from_node:
+          - node_id: array#1
+            output_handle: charts_array
+      - handle: analysis_goal
+        from_flow:
+          - input_handle: analysis_question
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.5
+          top_p: 1
+          max_tokens: 128000
+
+outputs_from:
+  - handle: final_report
+    from_node:
+      - node_id: report#1
+        output_handle: markdown_report
+
+  - handle: transformed_data
+    from_node:
+      - node_id: transform#1
+        output_handle: result_table
+
+  - handle: chart_image
+    from_node:
+      - node_id: chart#1
+        output_handle: chart_image
+
+forward_previews:
+  - load#1
+  - chart#1
+  - report#1

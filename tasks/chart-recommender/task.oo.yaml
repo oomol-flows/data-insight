@@ -40,6 +40,13 @@ outputs_def:
         properties:
           chart_type:
             type: string
+            enum:
+              - bar
+              - line
+              - scatter
+              - area
+              - pie
+              - heatmap
           x_field:
             type: string
           y_field:

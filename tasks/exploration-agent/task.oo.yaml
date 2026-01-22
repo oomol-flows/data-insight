@@ -51,13 +51,33 @@ outputs_def:
             type: string
           sql_query:
             type: string
-    description: "Array of exploration steps with transformations and insights"
+          chart_image:
+            type: string
+          chart_type:
+            type: string
+            enum: [bar, line, scatter, area, pie, heatmap]
+    description: "Array of exploration steps with transformations, insights, and charts"
     nullable: false
 
   - handle: final_report
     json_schema:
       type: string
     description: "Markdown summary of key findings"
+    nullable: false
+
+  - handle: chart_images
+    json_schema:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          image:
+            type: string
+          description:
+            type: string
+    description: "All generated charts ready for Report Generator"
     nullable: false
 
 executor:
@@ -68,4 +88,5 @@ executor:
 
 title: "Exploration Agent"
 icon: ":carbon:explore:"
-description: "Autonomous multi-round data exploration agent that discovers insights through iterative analysis"
+description: "Autonomous multi-round data exploration agent that discovers
+  insights through iterative analysis"

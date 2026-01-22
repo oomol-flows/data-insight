@@ -1,0 +1,134 @@
+inputs_def:
+  - handle: chart1_image
+    json_schema:
+      type: string
+    nullable: true
+    value: null
+    description: "Base64 encoded image for chart 1"
+
+  - handle: chart1_title
+    json_schema:
+      type: string
+    value: "Chart 1"
+    nullable: true
+    description: "Title for chart 1"
+
+  - handle: chart1_description
+    json_schema:
+      type: string
+    value: ""
+    nullable: true
+    description: "Description for chart 1"
+
+  - group: Additional Charts
+    collapsed: true
+
+  - handle: chart2_image
+    json_schema:
+      type: string
+    nullable: true
+    value: null
+    description: "Base64 encoded image for chart 2"
+
+  - handle: chart2_title
+    json_schema:
+      type: string
+    value: "Chart 2"
+    nullable: true
+    description: "Title for chart 2"
+
+  - handle: chart2_description
+    json_schema:
+      type: string
+    value: ""
+    nullable: true
+    description: "Description for chart 2"
+
+  - handle: chart3_image
+    json_schema:
+      type: string
+    nullable: true
+    value: null
+    description: "Base64 encoded image for chart 3"
+
+  - handle: chart3_title
+    json_schema:
+      type: string
+    value: "Chart 3"
+    nullable: true
+    description: "Title for chart 3"
+
+  - handle: chart3_description
+    json_schema:
+      type: string
+    value: ""
+    nullable: true
+    description: "Description for chart 3"
+
+  - handle: chart4_image
+    json_schema:
+      type: string
+    nullable: true
+    value: null
+    description: "Base64 encoded image for chart 4"
+
+  - handle: chart4_title
+    json_schema:
+      type: string
+    value: "Chart 4"
+    nullable: true
+    description: "Title for chart 4"
+
+  - handle: chart4_description
+    json_schema:
+      type: string
+    value: ""
+    nullable: true
+    description: "Description for chart 4"
+
+  - handle: chart5_image
+    json_schema:
+      type: string
+    nullable: true
+    value: null
+    description: "Base64 encoded image for chart 5"
+
+  - handle: chart5_title
+    json_schema:
+      type: string
+    value: "Chart 5"
+    nullable: true
+    description: "Title for chart 5"
+
+  - handle: chart5_description
+    json_schema:
+      type: string
+    value: ""
+    nullable: true
+    description: "Description for chart 5"
+
+outputs_def:
+  - handle: charts_array
+    json_schema:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          image:
+            type: string
+          description:
+            type: string
+    description: "Array of chart objects ready for Report Generator"
+    nullable: false
+
+executor:
+  name: python
+  options:
+    entry: __init__.py
+    spawn: false
+
+title: "Chart Array Builder"
+icon: ":carbon:list-boxes:"
+description: "Combine multiple chart images into an array for report generation. Automatically filters out empty charts."

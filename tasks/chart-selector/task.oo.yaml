@@ -8,6 +8,13 @@ inputs_def:
         properties:
           chart_type:
             type: string
+            enum:
+              - bar
+              - line
+              - scatter
+              - area
+              - pie
+              - heatmap
           x_field:
             type: string
           y_field:
@@ -33,6 +40,13 @@ outputs_def:
   - handle: chart_type
     json_schema:
       type: string
+      enum:
+        - bar
+        - line
+        - scatter
+        - area
+        - pie
+        - heatmap
     description: "Selected chart type"
     nullable: false
 

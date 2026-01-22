@@ -1,0 +1,84 @@
+inputs_def:
+  - handle: data_table
+    json_schema:
+      type: object
+      properties:
+        columns:
+          type: array
+        rows:
+          type: array
+        schema:
+          type: object
+    description: "Input data table to check for quality issues"
+    nullable: false
+
+  - handle: auto_clean
+    json_schema:
+      type: boolean
+    value: true
+    nullable: false
+    description: "Automatically clean common issues (missing values, outliers)"
+
+  - handle: llm
+    json_schema:
+      ui:widget: llm::model
+    value:
+      model: oomol-chat
+      temperature: 0.5
+      top_p: 1
+      max_tokens: 128000
+    nullable: false
+    description: "LLM for generating cleaning suggestions"
+
+outputs_def:
+  - handle: quality_report
+    json_schema:
+      type: object
+      properties:
+        overall_score:
+          type: number
+        missing_values:
+          type: object
+        outliers:
+          type: object
+        type_issues:
+          type: array
+        duplicate_rows:
+          type: number
+    description: "Detailed quality assessment report"
+    nullable: false
+
+  - handle: cleaning_suggestions
+    json_schema:
+      type: string
+    description: "AI-generated suggestions for data cleaning"
+    nullable: false
+
+  - handle: cleaned_table
+    json_schema:
+      type: object
+      properties:
+        columns:
+          type: array
+        rows:
+          type: array
+        schema:
+          type: object
+    description: "Cleaned data table (if auto_clean is enabled)"
+    nullable: false
+
+  - handle: quality_visualization
+    json_schema:
+      type: string
+    description: "Base64 encoded visualization of quality issues"
+    nullable: true
+
+executor:
+  name: python
+  options:
+    entry: __init__.py
+    spawn: false
+
+title: "Data Quality Checker"
+icon: ":carbon:data-quality-definition:"
+description: "Analyze data quality, detect issues (missing values, outliers, duplicates), and provide AI-powered cleaning suggestions"

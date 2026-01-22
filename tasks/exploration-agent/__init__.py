@@ -12,6 +12,7 @@ class Inputs(typing.TypedDict):
 class Outputs(typing.TypedDict):
     exploration_steps: typing.List[typing.Dict[str, typing.Any]]
     final_report: str
+    chart_images: typing.List[typing.Dict[str, str]]
 
 
 # endregion
@@ -21,6 +22,9 @@ from openai import OpenAI
 import pandas as pd
 import duckdb
 import json
+import altair as alt
+import vl_convert as vlc
+import base64
 
 
 EXPLORATION_SYSTEM_PROMPT = """You are an expert data analyst conducting exploratory data analysis.
@@ -130,6 +134,101 @@ async def execute_sql_query(df: pd.DataFrame, sql_query: str, table_name: str = 
         conn.close()
 
 
+def detect_field_types(df: pd.DataFrame) -> dict:
+    """Detect Vega-Lite field types from DataFrame"""
+    types = {}
+    for col in df.columns:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            unique_count = df[col].nunique()
+            if unique_count < 20 and unique_count < len(df) * 0.5:
+                types[col] = "ordinal"
+            else:
+                types[col] = "quantitative"
+        elif pd.api.types.is_datetime64_any_dtype(df[col]):
+            types[col] = "temporal"
+        else:
+            types[col] = "nominal"
+    return types
+
+
+def create_simple_chart(df: pd.DataFrame) -> dict:
+    """Create a simple appropriate chart for exploration data"""
+    if df.empty or len(df) == 0:
+        return {"image": "", "chart_type": "none"}
+
+    field_types = detect_field_types(df)
+    cols = df.columns.tolist()
+
+    # Determine chart type based on data shape
+    if len(cols) == 1:
+        # Single column: bar chart of value counts
+        col = cols[0]
+        if field_types[col] in ["nominal", "ordinal"]:
+            value_counts = df[col].value_counts().head(10)
+            chart_df = pd.DataFrame({
+                col: value_counts.index,
+                "count": value_counts.values
+            })
+            chart = alt.Chart(chart_df).mark_bar().encode(
+                x=alt.X(col, type="nominal"),
+                y=alt.Y("count", type="quantitative")
+            ).properties(width=500, height=300)
+            chart_type = "bar"
+        else:
+            # Numeric: histogram
+            chart = alt.Chart(df).mark_bar().encode(
+                x=alt.X(col, bin=True, type="quantitative"),
+                y=alt.Y("count()", type="quantitative")
+            ).properties(width=500, height=300)
+            chart_type = "histogram"
+
+    elif len(cols) == 2:
+        # Two columns: scatter or bar
+        col1, col2 = cols[0], cols[1]
+        type1, type2 = field_types[col1], field_types[col2]
+
+        if type1 in ["nominal", "ordinal"] and type2 == "quantitative":
+            # Categorical x Numeric = bar chart
+            chart = alt.Chart(df.head(20)).mark_bar().encode(
+                x=alt.X(col1, type="nominal"),
+                y=alt.Y(col2, type="quantitative")
+            ).properties(width=500, height=300)
+            chart_type = "bar"
+        elif type1 == "quantitative" and type2 == "quantitative":
+            # Numeric x Numeric = scatter
+            chart = alt.Chart(df.head(100)).mark_circle(size=60).encode(
+                x=alt.X(col1, type="quantitative"),
+                y=alt.Y(col2, type="quantitative")
+            ).properties(width=500, height=300)
+            chart_type = "scatter"
+        else:
+            # Default: bar
+            chart = alt.Chart(df.head(20)).mark_bar().encode(
+                x=alt.X(col1, type="nominal"),
+                y=alt.Y(col2, type="quantitative")
+            ).properties(width=500, height=300)
+            chart_type = "bar"
+
+    else:
+        # Multiple columns: bar chart of first two
+        col1, col2 = cols[0], cols[1]
+        chart = alt.Chart(df.head(20)).mark_bar().encode(
+            x=alt.X(col1, type="nominal"),
+            y=alt.Y(col2, type="quantitative")
+        ).properties(width=500, height=300)
+        chart_type = "bar"
+
+    # Render to PNG
+    try:
+        vega_spec = chart.to_dict()
+        png_data = vlc.vegalite_to_png(vega_spec, scale=2)
+        base64_image = base64.b64encode(png_data).decode()
+        return {"image": base64_image, "chart_type": chart_type}
+    except Exception:
+        # If rendering fails, return empty
+        return {"image": "", "chart_type": "none"}
+
+
 async def main(params: Inputs, context: Context) -> Outputs:
     """
     Multi-round exploration agent that autonomously discovers insights.
@@ -219,9 +318,14 @@ Plan the next analytical step to discover insights.
                     "transformation": step_plan.get("explanation", ""),
                     "sql_query": sql_query,
                     "insight": f"Query failed: {str(e)}",
+                    "chart_image": "",
+                    "chart_type": "none"
                 }
             )
             continue
+
+        # Generate chart for this step
+        chart_data = create_simple_chart(transformed_df)
 
         # Analyze results to generate insight
         insight_prompt = f"""You executed this SQL query:
@@ -263,6 +367,8 @@ What insight does this reveal? Provide a concise 1-2 sentence finding with speci
                 "transformation": step_plan.get("explanation", ""),
                 "sql_query": sql_query,
                 "insight": insight,
+                "chart_image": chart_data["image"],
+                "chart_type": chart_data["chart_type"]
             }
         )
 
@@ -321,9 +427,23 @@ Completed {len(exploration_steps)} exploration steps.
 
     context.report_progress(90)
 
+    # Build chart images array for Report Generator
+    chart_images = []
+    for step in exploration_steps:
+        if step.get("chart_image"):
+            chart_images.append({
+                "title": f"Step {step['step_number']}: {step['transformation'][:50]}...",
+                "image": step["chart_image"],
+                "description": step["insight"]
+            })
+
     # Preview the report
     context.preview({"type": "markdown", "data": final_report})
 
     context.report_progress(100)
 
-    return {"exploration_steps": exploration_steps, "final_report": final_report}
+    return {
+        "exploration_steps": exploration_steps,
+        "final_report": final_report,
+        "chart_images": chart_images
+    }

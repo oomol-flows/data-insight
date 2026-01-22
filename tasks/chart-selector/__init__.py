@@ -1,19 +1,15 @@
 #region generated meta
 import typing
-
-
 class Inputs(typing.TypedDict):
     recommendations: list[dict]
-    selection_index: typing.NotRequired[int]
-
-
+    selection_index: float | None
 class Outputs(typing.TypedDict):
-    chart_type: str
-    x_field: str
-    y_field: str
-    color_field: typing.Optional[str]
-    size_field: typing.Optional[str]
-    selected_recommendation: dict
+    chart_type: typing.NotRequired[str]
+    x_field: typing.NotRequired[str]
+    y_field: typing.NotRequired[str]
+    color_field: typing.NotRequired[str | None]
+    size_field: typing.NotRequired[str | None]
+    selected_recommendation: typing.NotRequired[dict]
 #endregion
 
 from oocana import Context

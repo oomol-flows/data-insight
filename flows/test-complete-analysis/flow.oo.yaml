@@ -1,0 +1,13 @@
+title: "Test Complete Analysis Subflow"
+description: "Demonstration of the end-to-end analysis subflow - one node does everything!"
+
+nodes:
+  - node_id: analysis#1
+    subflow: self::complete-data-analysis
+    inputs_from:
+      - handle: data_file
+        value: /oomol-driver/oomol-storage/sample_sales.csv
+      - handle: analysis_question
+        value: "What are the top 5 regions by total sales? Show me the trend and insights."
+      - handle: source_type
+        value: csv
