@@ -5,3 +5,4 @@ scripts:
   bootstrap: |
     npm install
     poetry install --no-root
+icon: ./icon.png
