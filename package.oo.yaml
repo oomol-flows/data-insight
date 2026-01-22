@@ -8,3 +8,6 @@ scripts:
 icon: ./icon.png
 displayName: "%key1%"
 description: "%transform-your-data-into-insights-without-writing-a-single-line%"
+name: data-insight
+repository: https://github.com/oomol-flows/data-insight.git
+releaseNotes: init
