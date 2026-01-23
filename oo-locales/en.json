@@ -114,7 +114,7 @@
   "llm-configuration-for-generating-interpretations": "LLM configuration for generating interpretations",
   "statistical-test-results-with-statistics-and-p-values": "Statistical test results with statistics and p-values",
   "ai-generated-interpretation-of-the-results": "AI-generated interpretation of the results",
-  "base64-encoded-visualization-if-applicable": "Base64 encoded visualization (if applicable)",
+  "path-to-visualization-png-file-if-applicable": "Path to visualization PNG file (if applicable)",
   "quick-data-analysis": "Quick Data Analysis",
   "perform-quick-data-analysis-including-quality-check-statistics-a": "Perform quick data analysis including quality check, statistics, and chart generation",
   "input-data-table-for-quick-analysis": "Input data table for quick analysis",

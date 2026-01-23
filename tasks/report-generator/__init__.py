@@ -22,18 +22,18 @@ import json
 
 REPORT_GEN_SYSTEM_PROMPT = """You are an expert data analyst writing comprehensive reports.
 
-Your task is to generate a professional markdown report based on the provided charts and analysis goal.
+Your task is to generate a professional markdown report based on the provided information and analysis goal.
 
 The report MUST include:
 1. **Executive Summary**: High-level overview of key findings (2-3 sentences)
-2. **Key Findings**: Bullet points highlighting the most important insights (reference charts)
+2. **Key Findings**: Bullet points highlighting the most important insights
 3. **Detailed Analysis**: In-depth explanation of each finding with supporting evidence
 4. **Recommendations**: Actionable suggestions based on the analysis
 5. **Conclusion**: Summary and next steps
 
 Guidelines:
 - Use professional data analysis language
-- Reference charts using placeholders like {{chart_1}}, {{chart_2}}, etc.
+- If charts are available, reference them using placeholders like {{chart_1}}, {{chart_2}}, etc.
 - Be specific and quantitative when possible
 - Provide context and interpretation, not just descriptions
 - Keep the tone objective and evidence-based
@@ -79,29 +79,40 @@ async def main(params: Inputs, context: Context) -> Outputs:
     analysis_goal = params["analysis_goal"]
     llm = params["llm"]
 
-    if not charts:
-        raise ValueError("At least one chart is required to generate a report")
-
     context.report_progress(10)
 
     # 1. Prepare chart summaries for LLM
     chart_summaries = []
-    for i, chart in enumerate(charts, 1):
-        summary = f"Chart {i}: {chart.get('title', 'Untitled')}"
-        if chart.get("description"):
-            summary += f" - {chart['description']}"
-        chart_summaries.append(summary)
+    if charts:
+        for i, chart in enumerate(charts, 1):
+            summary = f"Chart {i}: {chart.get('title', 'Untitled')}"
+            if chart.get("description"):
+                summary += f" - {chart['description']}"
+            chart_summaries.append(summary)
+    else:
+        # No charts available - will generate text-only report
+        chart_summaries.append("No visualizations were generated for this analysis.")
 
     context.report_progress(20)
 
     # 2. Construct prompt for report generation
-    user_prompt = f"""Analysis Goal: {analysis_goal}
+    if charts:
+        user_prompt = f"""Analysis Goal: {analysis_goal}
 
 Available Charts:
 {chr(10).join(chart_summaries)}
 
 Generate a comprehensive markdown report following the required structure.
 Reference charts using placeholders: {{{{chart_1}}}}, {{{{chart_2}}}}, etc.
+
+The report should be insightful, actionable, and well-structured.
+"""
+    else:
+        user_prompt = f"""Analysis Goal: {analysis_goal}
+
+Note: No visualizations were generated for this analysis. Please create a text-based report based on the analysis goal.
+
+Generate a comprehensive markdown report following the required structure.
 
 The report should be insightful, actionable, and well-structured.
 """

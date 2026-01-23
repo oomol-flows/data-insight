@@ -75,7 +75,7 @@ outputs_def:
     nullable: false
 
   - handle: visualization
-    description: "%base64-encoded-visualization-if-applicable%"
+    description: "%path-to-visualization-png-file-if-applicable%"
     json_schema:
       type: string
     nullable: true

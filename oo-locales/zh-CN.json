@@ -114,7 +114,7 @@
   "llm-configuration-for-generating-interpretations": "用于生成解释的 LLM 配置",
   "statistical-test-results-with-statistics-and-p-values": "带有统计量和 p 值的统计检验结果",
   "ai-generated-interpretation-of-the-results": "AI 生成的结果解读",
-  "base64-encoded-visualization-if-applicable": "Base64 编码可视化（如适用）",
+  "path-to-visualization-png-file-if-applicable": "可视化 PNG 文件路径（如适用）",
   "quick-data-analysis": "快速数据分析",
   "perform-quick-data-analysis-including-quality-check-statistics-a": "执行快速数据分析，包括质量检查、统计和图表生成",
   "input-data-table-for-quick-analysis": "用于快速分析的输入数据表",

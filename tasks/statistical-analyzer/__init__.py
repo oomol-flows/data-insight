@@ -18,8 +18,7 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 import json
-import base64
-import io
+import matplotlib.pyplot as plt
 
 
 async def main(params: Inputs, context: Context) -> Outputs:
@@ -62,7 +61,7 @@ async def main(params: Inputs, context: Context) -> Outputs:
             raise ValueError("Correlation analysis requires at least 2 numeric variables")
 
         test_result = compute_correlation(df, independent_vars)
-        visualization = create_correlation_heatmap(df, independent_vars)
+        visualization = create_correlation_heatmap(df, independent_vars, context)
 
     elif analysis_type == "t_test":
         dependent_var = variables.get("dependent")
@@ -72,7 +71,7 @@ async def main(params: Inputs, context: Context) -> Outputs:
             raise ValueError("T-test requires 'dependent' variable and 'group_column' in variables")
 
         test_result = compute_t_test(df, dependent_var, group_col)
-        visualization = create_box_plot(df, dependent_var, group_col)
+        visualization = create_box_plot(df, dependent_var, group_col, context)
 
     elif analysis_type == "normality_test":
         dependent_var = variables.get("dependent")
@@ -84,7 +83,7 @@ async def main(params: Inputs, context: Context) -> Outputs:
             dependent_var = numeric_cols[0]
 
         test_result = compute_normality_test(df, dependent_var)
-        visualization = create_distribution_plot(df, dependent_var)
+        visualization = create_distribution_plot(df, dependent_var, context)
 
     else:
         raise ValueError(f"Unsupported analysis type: {analysis_type}")
@@ -98,10 +97,7 @@ async def main(params: Inputs, context: Context) -> Outputs:
 
     context.report_progress(90)
 
-    # Generate preview
-    preview_html = format_results_preview(analysis_type, test_result, interpretation, visualization)
-    context.preview({"type": "html", "data": preview_html})
-
+    # No need for separate preview - plt.show() already displayed charts
     context.report_progress(100)
 
     return {
@@ -229,12 +225,8 @@ def compute_normality_test(df: pd.DataFrame, variable: str) -> dict:
     }
 
 
-def create_correlation_heatmap(df: pd.DataFrame, variables: list) -> str:
+def create_correlation_heatmap(df: pd.DataFrame, variables: list, context: Context) -> str:
     """Create correlation heatmap visualization"""
-    import matplotlib.pyplot as plt
-    import matplotlib
-    matplotlib.use('Agg')
-
     subset = df[variables].select_dtypes(include=[np.number])
     corr_matrix = subset.corr()
 
@@ -259,22 +251,19 @@ def create_correlation_heatmap(df: pd.DataFrame, variables: list) -> str:
     ax.set_title("Correlation Matrix")
     plt.tight_layout()
 
-    # Convert to base64
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode()
+    # Save to PNG file
+    output_path = f"{context.session_dir}/correlation_heatmap.png"
+    plt.savefig(output_path, format='png', dpi=150, bbox_inches='tight')
+
+    # Show for preview
+    plt.show()
     plt.close()
 
-    return img_base64
+    return output_path
 
 
-def create_box_plot(df: pd.DataFrame, dependent_var: str, group_col: str) -> str:
+def create_box_plot(df: pd.DataFrame, dependent_var: str, group_col: str, context: Context) -> str:
     """Create box plot for group comparison"""
-    import matplotlib.pyplot as plt
-    import matplotlib
-    matplotlib.use('Agg')
-
     fig, ax = plt.subplots(figsize=(8, 6))
 
     groups = df[group_col].unique()
@@ -288,22 +277,19 @@ def create_box_plot(df: pd.DataFrame, dependent_var: str, group_col: str) -> str
 
     plt.tight_layout()
 
-    # Convert to base64
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode()
+    # Save to PNG file
+    output_path = f"{context.session_dir}/box_plot.png"
+    plt.savefig(output_path, format='png', dpi=150, bbox_inches='tight')
+
+    # Show for preview
+    plt.show()
     plt.close()
 
-    return img_base64
+    return output_path
 
 
-def create_distribution_plot(df: pd.DataFrame, variable: str) -> str:
+def create_distribution_plot(df: pd.DataFrame, variable: str, context: Context) -> str:
     """Create histogram with normal distribution overlay"""
-    import matplotlib.pyplot as plt
-    import matplotlib
-    matplotlib.use('Agg')
-
     data = df[variable].dropna()
 
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -324,14 +310,15 @@ def create_distribution_plot(df: pd.DataFrame, variable: str) -> str:
 
     plt.tight_layout()
 
-    # Convert to base64
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode()
+    # Save to PNG file
+    output_path = f"{context.session_dir}/distribution_plot.png"
+    plt.savefig(output_path, format='png', dpi=150, bbox_inches='tight')
+
+    # Show for preview
+    plt.show()
     plt.close()
 
-    return img_base64
+    return output_path
 
 
 async def generate_interpretation(
@@ -432,62 +419,3 @@ Provide a concise interpretation (2-3 sentences) including:
         )
 
         return response.choices[0].message.content.strip()
-
-
-def format_results_preview(
-    analysis_type: str,
-    test_result: dict,
-    interpretation: str,
-    visualization: str | None
-) -> str:
-    """Format statistical results as HTML preview"""
-
-    html = f"""
-    <div style="font-family: system-ui; padding: 20px; background: #f8f9fa;">
-        <h2 style="color: #1f2937; margin-bottom: 20px;">Statistical Analysis Results</h2>
-
-        <div style="background: white; padding: 16px; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h3 style="color: #374151; margin: 0 0 12px 0; font-size: 16px;">Analysis Type: {analysis_type.replace('_', ' ').title()}</h3>
-    """
-
-    # Add key results
-    if analysis_type == "t_test" and "significant" in test_result:
-        sig_color = "#10b981" if test_result["significant"] else "#6b7280"
-        sig_text = "Significant" if test_result["significant"] else "Not Significant"
-
-        html += f"""
-            <div style="display: inline-block; background: {sig_color}; color: white; padding: 6px 12px; border-radius: 4px; font-weight: 600; margin-bottom: 12px;">
-                {sig_text} (p = {test_result['p_value']:.4f})
-            </div>
-        """
-
-    elif analysis_type == "normality_test" and "is_normal" in test_result:
-        norm_color = "#10b981" if test_result["is_normal"] else "#ef4444"
-        norm_text = "Normally Distributed" if test_result["is_normal"] else "Not Normal"
-
-        html += f"""
-            <div style="display: inline-block; background: {norm_color}; color: white; padding: 6px 12px; border-radius: 4px; font-weight: 600; margin-bottom: 12px;">
-                {norm_text} (p = {test_result['p_value']:.4f})
-            </div>
-        """
-
-    # Add interpretation
-    html += f"""
-            <div style="background: #f3f4f6; padding: 12px; border-radius: 4px; border-left: 4px solid #3b82f6;">
-                <strong style="color: #1f2937;">Interpretation:</strong>
-                <p style="margin: 8px 0 0 0; color: #374151;">{interpretation}</p>
-            </div>
-        </div>
-    """
-
-    # Add visualization if available
-    if visualization:
-        html += f"""
-        <div style="background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <img src="data:image/png;base64,{visualization}" style="max-width: 100%; height: auto;">
-        </div>
-        """
-
-    html += "</div>"
-
-    return html

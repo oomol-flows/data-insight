@@ -1,0 +1,30 @@
+nodes:
+  - node_id: data-loader#1
+    title: "Data Loader #1"
+    task: self::data-loader
+    inputs_from:
+      - handle: source_type
+        value: csv
+      - handle: file_path
+        value: /oomol-driver/oomol-storage/StudentPerformance.csv
+      - handle: database_config
+        value:
+
+  - node_id: statistical-analyzer#1
+    title: "Statistical Analyzer #1"
+    task: self::statistical-analyzer
+    inputs_from:
+      - handle: data_table
+        from_node:
+          - node_id: data-loader#1
+            output_handle: data_table
+      - handle: analysis_type
+        value: correlation
+      - handle: variables
+        value: null
+      - handle: llm
+        value:
+          model: oomol-chat
+          temperature: 0.6
+          top_p: 0.8
+          max_tokens: 8100

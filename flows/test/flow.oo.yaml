@@ -1,0 +1,13 @@
+nodes:
+  - node_id: smart-data-analysis#1
+    title: "Smart Data Analysis (Multi-Round) #1"
+    inputs_from:
+      - handle: data_file
+        value: /oomol-driver/oomol-storage/StudentPerformance.csv
+      - handle: analysis_goal
+        value: 帮我分析数据
+      - handle: source_type
+        value: csv
+      - handle: max_iterations
+        value: 3
+    subflow: self::smart-data-analysis
